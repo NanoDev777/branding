@@ -255,10 +255,6 @@
       ])
     },
 
-    //items [{id: 1}, {id:2}, {id:3}]
-    //select [1,2,3] luego select vale [1,2,4]
-    //->si esta presente en los dos: lo mantengo
-    //
     watch: {
       select (v) {
         if (!this.flag) {
@@ -312,7 +308,12 @@
             let rObj = {}
             rObj['id'] = obj.id
             rObj['name'] = obj.name
-            let array = obj.pivot['size'].split(",")
+            let array
+            if (obj.pivot['size'] == 'S/T') {
+              array = []
+            }else {
+              array = obj.pivot['size'].split(",")
+            }
             rObj['size'] = { value: array }
             return rObj
           })

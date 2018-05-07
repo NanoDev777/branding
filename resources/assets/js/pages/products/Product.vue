@@ -33,10 +33,15 @@
                           <v-carousel-item
                             v-for="(item,i) in images"
                             :key="i"
-                            :src="item"
+                            :src="item.url"
                             transition="fade"
-                            reverse-transition="fade"
-                          ></v-carousel-item>
+                            reverse-transition="fade">
+                            <div title="Eliminar Imagen">
+                              <v-btn fab flat small color="red accent-3" @click="click(item.id)">
+                                <v-icon>delete_forever</v-icon>
+                              </v-btn>
+                            </div>
+                          </v-carousel-item>
                         </v-carousel>
                       </v-card>
                       <br><hr>
@@ -185,15 +190,7 @@
                 <v-container fluid>
                   <v-layout>
                     <v-flex xs12 sm12 md12 lg12>
-                      <v-card>
-                        <v-card-text>
-                          <h3 class="headline mb-0">Cargar Imagenes</h3>
-                          <v-layout row wrap>
-                            <v-flex xs12 sm12 md2 lg2>
-                            </v-flex>
-                          </v-layout>
-                        </v-card-text>
-                      </v-card>
+                      <file-input></file-input>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -207,9 +204,14 @@
 </template>
 
 <script>
+import FileInput from '../../components/FileInput.vue'
+
   export default {
     name: 'product',
     props: ["id"],
+    components: {
+      'file-input' : FileInput
+    },
     data () {
       return {
         active: null,
@@ -279,6 +281,9 @@
       this.showProduct()
     },
     methods: {
+      click(id) {
+        console.log(id)
+      },
       showProduct() {
         axios.get('/api/product/' + this.id)
         .then(response => {
@@ -289,7 +294,12 @@
           this.width = response.data.data.width
           this.thickness = response.data.data.thickness
           this.weight = response.data.data.weight
-          this.images = response.data.data.images.map(i => `/${i.image}`)
+          this.images = response.data.data.images.map((obj) => { 
+            let rObj = {}
+            rObj['id'] = obj.id
+            rObj['url'] = `/${obj.image}`
+            return rObj
+          })
           if (response.data.data.packing !== null) {
             this.packing.id = response.data.data.packing.id
             this.packing.width = response.data.data.packing.width

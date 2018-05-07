@@ -48,9 +48,20 @@ class ProductController extends Controller
 
         $data = array();
         foreach ($request->items as $key => $value) {
-          $format = implode(',' , $value['size']['value']);
+          if (empty($value['size']['value'])) {
+            $format = 'S/T';
+          }else {
+            $format = implode(',' , $value['size']['value']);
+          } 
           $data[$value['id']] = ['size' => $format];
         }
+
+        /*$format = '';
+          if (empty($value['size']['value'])) {
+            $format = 'S/T';
+          }else {
+            $format = implode(',' , $value['size']['value']);
+          } */
 
         $product->colors()->attach($data);
 
@@ -85,7 +96,11 @@ class ProductController extends Controller
         
         $data = array();
         foreach ($request->items as $key => $value) {
-          $format = implode(',' , $value['size']['value']);
+          if (empty($value['size']['value'])) {
+            $format = 'S/T';
+          }else {
+            $format = implode(',' , $value['size']['value']);
+          }
           $data[$value['id']] = ['size' => $format];
         }
         $product->colors()->sync($data);
