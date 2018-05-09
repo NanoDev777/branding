@@ -35,6 +35,10 @@ Route::middleware(['jwt.auth'])->group(function () {
   Route::get('search-product/{code}', 'ProductController@searchProduct');
   Route::post('select-product', 'ProductController@selectProduct');
 
+  //Images
+  Route::post('create-image', 'ImageController@store');
+  Route::delete('image/{id}', 'ImageController@destroy');
+
   //Packing
   Route::post('create-packing', 'PackingController@store');
   Route::put('packing/{id}', 'PackingController@update');

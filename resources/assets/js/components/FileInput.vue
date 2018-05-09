@@ -16,14 +16,14 @@
             style="display: none"
             ref="image"
             accept="image/*"
-            @change="onFilePicked"
+            @change="onImageChange"
           >
         </v-flex>
       </v-layout>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn>subir imagen</v-btn>
+      <v-btn :loading="loader" @click="upload">subir imagen</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -31,8 +31,10 @@
 <script>
   export default {
     name: 'FileInput',
+    props: ['product'],
     data () {
       return {
+        loader: false,
         imageName: '',
         imageUrl: '',
         imageFile: ''
@@ -43,24 +45,30 @@
       pickFile () {
         this.$refs.image.click ()
       },
-      onFilePicked (e) {
-        const files = e.target.files
-        if(files[0] !== undefined) {
-          this.imageName = files[0].name
-        if(this.imageName.lastIndexOf('.') <= 0) {
-          return
-        }
-        const fr = new FileReader ()
-        fr.readAsDataURL(files[0])
-        fr.addEventListener('load', () => {
-          this.imageUrl = fr.result
-          this.imageFile = files[0] // this is an image file that can be sent to server...
-        })
-        } else {
-          this.imageName = ''
-          this.imageFile = ''
-          this.imageUrl = ''
-        }
+      onImageChange(e) {
+        let files = e.target.files || e.dataTransfer.files
+        if (!files.length)
+          return;
+        this.createImage(files[0])
+        this.imageName = files[0].name
+      },
+      createImage(file) {
+        let reader = new FileReader()
+        let vm = this;
+        reader.onload = (e) => {
+          vm.imageFile = e.target.result
+          vm.imageUrl = e.target.result
+        };
+        reader.readAsDataURL(file)
+      },
+      upload () {
+        this.loader = true
+        axios.post('/api/create-image',{image: this.imageFile, id: this.product})
+        .then(response => {
+          this.$emit('data-received',response.data.data)
+          this.loader = false
+          this.$snotify.success('Se guardo la imagen correctamente!', 'Felicidades')
+        });
       }
     }
   }

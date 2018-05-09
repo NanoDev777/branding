@@ -33,11 +33,9 @@
                           <v-carousel-item
                             v-for="(item,i) in images"
                             :key="i"
-                            :src="item.url"
-                            transition="fade"
-                            reverse-transition="fade">
+                            :src="'/img/'+item.image">
                             <div title="Eliminar Imagen">
-                              <v-btn fab flat small color="red accent-3" @click="click(item.id)">
+                              <v-btn fab flat small color="red accent-3" @click="click(item.id)" :loading="imgloader">
                                 <v-icon>delete_forever</v-icon>
                               </v-btn>
                             </div>
@@ -190,7 +188,7 @@
                 <v-container fluid>
                   <v-layout>
                     <v-flex xs12 sm12 md12 lg12>
-                      <file-input></file-input>
+                      <file-input :product="id" v-on:data-received='handler'></file-input>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -218,6 +216,7 @@ import FileInput from '../../components/FileInput.vue'
         loading: true,
         loader: false,
         dialog: false,
+        imgloader: false,
         code: null,
         name: '',
         description: '',
@@ -282,7 +281,21 @@ import FileInput from '../../components/FileInput.vue'
     },
     methods: {
       click(id) {
-        console.log(id)
+        let r = confirm('Realmente desea eliminar esta imagen?')
+        if (r) {
+          this.imgloader = true
+          axios.delete('/api/image/'+id)
+          .then((response) => {
+            let index = this.images.findIndex(x => x.id === id)
+            this.images.splice(index, 1)
+            this.imgloader = false
+            this.$snotify.success(response.data.response, 'Felicidades')
+          })
+          .catch((error) => {
+            this.imgloader = false
+            this.$snotify.error(error.response.data.error, 'Error')
+          })
+        }
       },
       showProduct() {
         axios.get('/api/product/' + this.id)
@@ -294,12 +307,7 @@ import FileInput from '../../components/FileInput.vue'
           this.width = response.data.data.width
           this.thickness = response.data.data.thickness
           this.weight = response.data.data.weight
-          this.images = response.data.data.images.map((obj) => { 
-            let rObj = {}
-            rObj['id'] = obj.id
-            rObj['url'] = `/${obj.image}`
-            return rObj
-          })
+          this.images = response.data.data.images.map(({id, image}) => ({id, image}))
           if (response.data.data.packing !== null) {
             this.packing.id = response.data.data.packing.id
             this.packing.width = response.data.data.packing.width
@@ -363,6 +371,12 @@ import FileInput from '../../components/FileInput.vue'
           this.loader = false
           this.$snotify.error(error.response.data.msg, 'Error')
         })
+      },
+      handler(data) {
+        delete data.updated_at
+        delete data.created_at
+        delete data.product_id
+        this.images.unshift(data)
       }
     }
   } 
