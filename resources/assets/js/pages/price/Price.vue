@@ -11,106 +11,107 @@
             <v-layout>
               <v-flex xs12 sm12 md12 lg12>
                 <v-card>
-                  <div>
-                    <v-dialog v-model="dialog" max-width="500px">
-                      <v-btn dark color="grey darken-1" slot="activator" class="mb-2">Registrar Nuevo</v-btn>
-                      <v-card>
-                        <v-card-title>
-                          <span class="headline">{{ formTitle }}</span>
-                        </v-card-title>
-                        <v-card-text>
-                          <v-container grid-list-md>
-                            <v-layout wrap>
-                              <v-flex xs12 sm12 md12>
-                                <v-text-field 
-                                  label="Cantidad" 
-                                  v-model="editedItem.quantity"
-                                  :error-messages="errors.collect('quantity')"
-                                  v-validate="'required'"
-                                  data-vv-name="quantity"
-                                  required
-                                ></v-text-field>
-                              </v-flex>
-                              <v-flex xs12 sm12 md12>
-                                <v-text-field 
-                                  label="Logo" 
-                                  v-model="editedItem.logo"
-                                  :error-messages="errors.collect('logo')"
-                                  v-validate="'required'"
-                                  data-vv-name="logo"
-                                  required
-                                ></v-text-field>
-                              </v-flex>
-                              <v-flex xs12 sm12 md12>
-                                <v-text-field 
-                                  label="Utilidad" 
-                                  v-model="editedItem.utility"
-                                  :error-messages="errors.collect('utility')"
-                                  v-validate="'required'"
-                                  data-vv-name="utility"
-                                  required
-                                ></v-text-field>
-                              </v-flex>
-                            </v-layout>
-                          </v-container>
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn :disabled="loader" color="blue darken-1" flat @click.native="close">Cancelar</v-btn>
-                          <v-btn :loading="loader" color="blue darken-1" flat @click.native="save">Aceptar</v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
-                    <v-dialog v-model="deleteDialog" max-width="290">
-                      <v-card>
-                        <v-card-title class="headline">Desea eliminar el precio?</v-card-title>
-                        <v-card-text>
-                          Realmente desea eliminar este registro.
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn :disabled="loader" color="green darken-1" flat="flat" @click.native="deleteDialog = false">Cancelar                
-                          </v-btn>
-                          <v-btn :loading="loader" color="green darken-1" flat="flat" @click.native="destroyItem()">  Aceptar
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
-                    <v-card-title>
-                      <v-spacer></v-spacer>
-                      <v-text-field
-                        append-icon="search"
-                        label="Buscar"
-                        single-line
-                        hide-details
-                        v-model="search"
-                      ></v-text-field>
-                    </v-card-title>
-                    <v-data-table
-                      :headers="headers"
-                      :items="prices"
-                      :search="search"
-                    >
-                      <template slot="items" slot-scope="props">
-                        <td>{{ props.item.quantity }}</td>
-                        <td>{{ props.item.logo }}</td>
-                        <td>{{ props.item.utility }}</td>
-                        <td>
-                          <v-btn icon class="mx-0" @click="editItem(props.item)">
-                            <v-icon color="teal">edit</v-icon>
-                          </v-btn>
-                          <v-btn icon class="mx-0" @click="showDeleteDialog(props.item)">
-                            <v-icon color="pink">delete</v-icon>
-                          </v-btn>
-                        </td>
-                      </template>
-                      <template slot="no-data">
-                        <v-alert :value="true" color="error" icon="warning">
-                          Lo sentimos, no se encontraron resultados.
-                        </v-alert>
-                      </template>
-                    </v-data-table>
-                  </div>
+                  <v-card-title>
+                    <v-btn dark color="grey darken-1" slot="activator" class="mb-2" @click.native="dialog = true">
+                      <v-icon dark>note_add</v-icon>
+                    </v-btn>
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      append-icon="search"
+                      label="Buscar"
+                      single-line
+                      hide-details
+                      v-model="search"
+                    ></v-text-field>
+                  </v-card-title>
+                  <v-dialog v-model="dialog" max-width="500px">
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">{{ formTitle }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container grid-list-md>
+                          <v-layout wrap>
+                            <v-flex xs12 sm12 md12>
+                              <v-text-field 
+                                label="Cantidad" 
+                                v-model="editedItem.quantity"
+                                :error-messages="errors.collect('quantity')"
+                                v-validate="'required'"
+                                data-vv-name="quantity"
+                                required
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex xs12 sm12 md12>
+                              <v-text-field 
+                                label="Logo" 
+                                v-model="editedItem.logo"
+                                :error-messages="errors.collect('logo')"
+                                v-validate="'required'"
+                                data-vv-name="logo"
+                                required
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex xs12 sm12 md12>
+                              <v-text-field 
+                                label="Utilidad" 
+                                v-model="editedItem.utility"
+                                :error-messages="errors.collect('utility')"
+                                v-validate="'required'"
+                                data-vv-name="utility"
+                                required
+                              ></v-text-field>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="loader" color="blue darken-1" flat @click.native="close">Cancelar</v-btn>
+                        <v-btn :loading="loader" color="blue darken-1" flat @click.native="save">Aceptar</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <v-dialog v-model="deleteDialog" max-width="290">
+                    <v-card>
+                      <v-card-title class="headline">Desea eliminar el precio?</v-card-title>
+                      <v-card-text>
+                        Realmente desea eliminar este registro.
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="loader" color="green darken-1" flat="flat" @click.native="deleteDialog = false">Cancelar                
+                        </v-btn>
+                        <v-btn :loading="loader" color="green darken-1" flat="flat" @click.native="destroyItem()">  Aceptar
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <v-data-table
+                    :headers="headers"
+                    :items="prices"
+                    :search="search"
+                  >
+                    <template slot="items" slot-scope="props">
+                      <td>{{ props.item.quantity }}</td>
+                      <td>{{ props.item.logo }}</td>
+                      <td>{{ props.item.utility }}</td>
+                      <td>
+                        <v-btn icon class="mx-0" @click="editItem(props.item)">
+                          <v-icon color="teal">edit</v-icon>
+                        </v-btn>
+                        <v-btn icon class="mx-0" @click="showDeleteDialog(props.item)">
+                          <v-icon color="pink">delete</v-icon>
+                        </v-btn>
+                      </td>
+                    </template>
+                    <template slot="no-data">
+                      <v-alert :value="true" color="error" icon="warning">
+                        Lo sentimos, no se encontraron resultados.
+                      </v-alert>
+                    </template>
+                  </v-data-table>
                 </v-card>
               </v-flex>
             </v-layout>

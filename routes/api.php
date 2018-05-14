@@ -30,7 +30,7 @@ Route::middleware(['jwt.auth'])->group(function () {
   Route::get('product/{id}', 'ProductController@show');
   Route::post('create-product', 'ProductController@store');
   Route::put('product/{id}', 'ProductController@update');
-  Route::delete('product/{id}', 'ProductController@delete');
+  Route::delete('product/{id}', 'ProductController@destroy');
   Route::get('filter-products/{category}', 'ProductController@filterProducts');
   Route::get('search-product/{code}', 'ProductController@searchProduct');
   Route::post('select-product', 'ProductController@selectProduct');

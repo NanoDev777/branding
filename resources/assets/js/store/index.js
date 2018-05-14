@@ -7,6 +7,7 @@ import categories from './modules/categories'
 import colors from './modules/colors'
 import quotations from './modules/quotations'
 import prices from './modules/prices'
+import message from './modules/message'
 
 Vue.use(Vuex)
 
@@ -17,7 +18,8 @@ export default new Vuex.Store({
     categories,
     colors,
     quotations,
-    prices
+    prices,
+    message
   },
   plugins: [createPersistedState()]
 })

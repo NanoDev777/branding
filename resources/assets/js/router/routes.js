@@ -15,7 +15,19 @@ import Category from '../pages/category/Category.vue'
 import Price from '../pages/price/Price.vue'
 
 //quotation
-import Quotation from '../pages/quotation/Quotation.vue'
+import Quotations from '../pages/quotation/ListQuotations.vue'
+import CreateQuotation from '../pages/quotation/CreateQuotation.vue'
+import ShowQuotation from '../pages/quotation/ShowQuotation.vue'
+
+//users
+import Users from '../pages/users/ListUsers.vue'
+import CreateUser from '../pages/users/CreateUser.vue'
+import EditUser from '../pages/users/EditUser.vue'
+
+//roles
+import Roles from '../pages/roles/ListRoles.vue'
+import CreateRol from '../pages/roles/CreateRol.vue'
+import EditRol from '../pages/roles/EditRol.vue'
 
 export default [
   {
@@ -74,8 +86,81 @@ export default [
       },
       {
         path: '/quotations',
-        name: 'Quotation',
-        component: Quotation
+        name: 'Quotations',
+        redirect: '/quotations',
+        component: {
+          render (c) { return c('router-view') }
+        },
+        children: [
+          {
+            path: '',
+            name: 'ListQuotations',
+            component: Quotations
+          },
+          {
+            path: 'create',
+            name: 'CreateQuotation',
+            component: CreateQuotation
+          },
+          {
+            path: ':id/show',
+            name: 'ShowQuotation',
+            component: ShowQuotation,
+            props: true
+          }
+        ]
+      },
+      {
+        path: '/users',
+        name: 'Users',
+        redirect: '/users',
+        component: {
+          render (c) { return c('router-view') }
+        },
+        children: [
+          {
+            path: '',
+            name: 'ListUsers',
+            component: Users
+          },
+          {
+            path: 'create',
+            name: 'CreateUser',
+            component: CreateUser
+          },
+          {
+            path: ':id/edit',
+            name: 'EditUser',
+            component: EditUser,
+            props: true
+          }
+        ]
+      },
+      {
+        path: '/roles',
+        name: 'Roles',
+        redirect: '/roles',
+        component: {
+          render (c) { return c('router-view') }
+        },
+        children: [
+          {
+            path: '',
+            name: 'ListRoles',
+            component: Roles
+          },
+          {
+            path: 'create',
+            name: 'CreateRol',
+            component: CreateRol
+          },
+          {
+            path: ':id/edit',
+            name: 'EditRol',
+            component: EditRol,
+            props: true
+          }
+        ]
       }
     ]  
   },

@@ -4,12 +4,15 @@
       <h3 class="headline mb-0">Cargar Imagenes</h3>
       <v-layout row wrap>
         <v-flex xs12 sm12 md12 lg12>
+          <v-form v-model="valid" ref="form" lazy-validation>
           <img :src="imageUrl" height="150" v-if="imageUrl"/>
           <v-text-field 
             label="Seleccione una imagen" 
             @click='pickFile' 
             v-model='imageName'
-            prepend-icon='attach_file'>
+            prepend-icon='attach_file'
+            :rules="imageRules"
+            required>
           </v-text-field>
           <input
             type="file"
@@ -18,6 +21,7 @@
             accept="image/*"
             @change="onImageChange"
           >
+          </v-form>
         </v-flex>
       </v-layout>
     </v-card-text>
@@ -37,7 +41,11 @@
         loader: false,
         imageName: '',
         imageUrl: '',
-        imageFile: ''
+        imageFile: '',
+        valid: true,
+        imageRules: [
+          v => !!v || 'El campo es requerido',
+        ]
       }
     },
 
@@ -62,13 +70,15 @@
         reader.readAsDataURL(file)
       },
       upload () {
-        this.loader = true
-        axios.post('/api/create-image',{image: this.imageFile, id: this.product})
-        .then(response => {
-          this.$emit('data-received',response.data.data)
-          this.loader = false
-          this.$snotify.success('Se guardo la imagen correctamente!', 'Felicidades')
-        });
+        if (this.$refs.form.validate()) {
+          this.loader = true
+          axios.post('/api/create-image',{image: this.imageFile, id: this.product})
+          .then(response => {
+            this.$emit('data-received',response.data.data)
+            this.loader = false
+            this.$snotify.success('Se guardo la imagen correctamente!', 'Felicidades')
+          });
+        }
       }
     }
   }

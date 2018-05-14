@@ -38,11 +38,27 @@ axios.interceptors.response.use(
   },
   (error) => {
     const originalRequest = error.config
-
+    
+    if (error.response.status >= 500) {
+      store.dispatch('responseMessage', {
+        type: 'error',
+        text: error.response.data.error,
+        title: 'Error',
+        modal: true
+      })
+    }
     // token expired
     if (error.response.status === 401 && error.response.data.error == "token_expired") {
-      store.dispatch('logout')
-      router.push({ name: 'login' })
+      store.dispatch('responseMessage', {
+        type: 'warning',
+        text: 'Por favór, vuelva a iniciar sesión para poder continuar...',
+        title: 'Sesión Expirada!',
+        modal: true
+      })
+      .then(async () => {
+        await store.dispatch('logout')
+        router.push({ name: 'login' })
+      })
 
 
       /*originalRequest._retry = true

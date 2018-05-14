@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <div>
     <v-navigation-drawer
       persistent
       :mini-variant="miniVariant"
@@ -19,15 +19,55 @@
         </v-list>
       </v-toolbar>
       <v-divider></v-divider>
-      <v-list dense class="pt-0">
-        <v-list-tile v-for="item in items" :key="item.title" router :to="item.url">
-          <v-list-tile-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+      <v-list dense>
+        <template v-for="item in items">
+          <v-layout
+            row
+            v-if="item.heading"
+            align-center
+            :key="item.heading"
+          >
+          </v-layout>
+          <v-list-group
+            v-else-if="item.children"
+            v-model="item.model"
+            :key="item.text"
+            :prepend-icon="item.model ? item.icon : item['icon-alt']"
+            append-icon=""
+          >
+            <v-list-tile slot="activator">
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  {{ item.text }}
+                </v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile
+              v-for="(child, i) in item.children"
+              :key="i"
+              router :to="child.url"
+            >
+              <v-list-tile-action v-if="child.icon">
+                <v-icon>{{ child.icon }}</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  {{ child.text }}
+                </v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+          <v-list-tile v-else :key="item.text" router :to="item.url">
+            <v-list-tile-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ item.text }}
+              </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </template>
       </v-list>
     </v-navigation-drawer>
     <app-toolbar 
@@ -41,20 +81,18 @@
       </transition>
     </v-content>
     <app-footer/>
-  </v-app>
+  </div>
 </template>
 
 <script>
   import AppFooter from '../components/AppFooter.vue'
   import AppToolbar from '../components/AppToolbar.vue'
-  import AppBreadcrumbs from '../components/AppBreadcrumbs.vue'
 
   export default {
     name: 'layouts',
     components: {
       'app-footer': AppFooter,
-      'app-toolbar': AppToolbar,
-      'app-breadcrumbs': AppBreadcrumbs
+      'app-toolbar': AppToolbar
     },
     data () {
       return {
@@ -62,12 +100,31 @@
         drawer: true,
         miniVariant: false,
         items: [
-          { icon: 'home', title: 'Inicio', url: '/dashboard' },
-          { icon: 'local_grocery_store', title: 'Productos', url: '/products' },
-          { icon: 'local_offer', title: 'Categorías', url: '/categories' },
-          { icon: 'monetization_on', title: 'Precios', url: '/prices' },
-          { icon: 'find_in_page', title: 'Cotización', url: '/quotations' },
-        ],
+        { icon: 'home', text: 'Inicio', url: '/dashboard' },
+        { icon: 'local_grocery_store', text: 'Productos', url: '/products' },
+        { icon: 'local_offer', text: 'Categorías', url: '/categories' },
+        { icon: 'monetization_on', text: 'Precios', url: '/prices' },
+        {
+          icon: 'find_in_page',
+          'icon-alt': 'find_in_page',
+          text: 'Cotización',
+          model: false,
+          children: [
+            { icon: 'assignment', text: 'Ver lista', url: '/quotations' },
+            { icon: 'note_add', text: 'Generar nueva', url: '/quotations/create' }
+          ]
+        },
+        {
+          icon: 'settings',
+          'icon-alt': 'settings',
+          text: 'Configuración',
+          model: false,
+          children: [
+            { icon: 'security', text: 'Roles y permisos', url: '/roles' },
+            { icon: 'group', text: 'Usuarios', url: '/users' }
+          ]
+        }
+      ],
         width: 220
       }
     },

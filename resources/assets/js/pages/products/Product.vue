@@ -11,7 +11,7 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" flat @click.native="dialog = false">Cancelar</v-btn>
-                <v-btn color="blue darken-1" flat @click.native="dialog = false">Aceptar</v-btn>
+                <v-btn color="blue darken-1" flat @click="deleteProduct">Aceptar</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -125,6 +125,7 @@
                       <v-card>
                         <v-card-text>
                           <h3 class="headline mb-0">Datos de Embalaje</h3>
+                          <v-form v-model="valid" ref="form" lazy-validation>
                           <v-layout row wrap>
                             <v-flex xs12 sm12 md2 lg2>
                               <v-text-field
@@ -172,6 +173,7 @@
                               ></v-text-field>
                             </v-flex>
                           </v-layout>
+                          </v-form>
                         </v-card-text>
                         <v-card-actions>
                           <v-spacer></v-spacer>
@@ -235,6 +237,7 @@ import FileInput from '../../components/FileInput.vue'
           box: '',
           product: parseInt(this.id)
         },
+        valid: true,
         widthRules: [
           v => !!v || 'Este campo es requerido',
           v => /^[0-9]+([.])?([0-9]+)?$/.test(v) || 'Escriba el valor con el formato: 0.00'
@@ -330,6 +333,18 @@ import FileInput from '../../components/FileInput.vue'
           this.$snotify.error(error.response.data.error, 'Error')
         })
       },
+      deleteProduct() {
+        axios.delete('/api/product/'+this.id)
+        .then((response) => {
+          console.log(response)
+          this.dialog = false
+          this.$router.push({ name: 'Products' })
+          this.$snotify.success(response.data.data, 'Felicidades')
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+      },
       goPacking() {
         if (this.packing.id != null) {
           this.updatePacking()
@@ -337,40 +352,44 @@ import FileInput from '../../components/FileInput.vue'
           this.createPacking()
         }
       },
-      createPacking() {
-        this.loader = true
-        axios.post('/api/create-packing', this.packing)
-        .then((response) => {
-          this.packing.id = response.data.data.id
-          this.packing.width = response.data.data.width
-          this.packing.height = response.data.data.height
-          this.packing.thickness = response.data.data.thickness
-          this.packing.weight = response.data.data.weight
-          this.packing.box = response.data.data.box
-          this.$snotify.success('Registrado correctamente!', 'Felicidades')
-          this.loader = false
-        })
-        .catch((error) => {
-          this.loader = false
-          this.$snotify.error(error.response.data.msg, 'Error')
-        })
+      createPacking() {     
+        if (this.$refs.form.validate()) {
+          this.loader = true
+          axios.post('/api/create-packing', this.packing)
+          .then((response) => {
+            this.packing.id = response.data.data.id
+            this.packing.width = response.data.data.width
+            this.packing.height = response.data.data.height
+            this.packing.thickness = response.data.data.thickness
+            this.packing.weight = response.data.data.weight
+            this.packing.box = response.data.data.box
+            this.$snotify.success('Registrado correctamente!', 'Felicidades')
+            this.loader = false
+          })
+          .catch((error) => {
+            this.loader = false
+            this.$snotify.error(error.response.data.msg, 'Error')
+          })
+        }
       },
       updatePacking() {
-        this.loader = true
-        axios.put(`/api/packing/${this.packing.id}`, this.packing)
-        .then((response) => {
-          this.packing.width = response.data.data.width
-          this.packing.height = response.data.data.height
-          this.packing.thickness = response.data.data.thickness
-          this.packing.weight = response.data.data.weight
-          this.packing.box = response.data.data.box
-          this.$snotify.success('Editado correctamente!', 'Felicidades')
-          this.loader = false
-        })
-        .catch((error) => {
-          this.loader = false
-          this.$snotify.error(error.response.data.msg, 'Error')
-        })
+        if (this.$refs.form.validate()) {
+          this.loader = true
+          axios.put(`/api/packing/${this.packing.id}`, this.packing)
+          .then((response) => {
+            this.packing.width = response.data.data.width
+            this.packing.height = response.data.data.height
+            this.packing.thickness = response.data.data.thickness
+            this.packing.weight = response.data.data.weight
+            this.packing.box = response.data.data.box
+            this.$snotify.success('Editado correctamente!', 'Felicidades')
+            this.loader = false
+          })
+          .catch((error) => {
+            this.loader = false
+            this.$snotify.error(error.response.data.msg, 'Error')
+          })
+        }
       },
       handler(data) {
         delete data.updated_at

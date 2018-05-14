@@ -9,14 +9,39 @@ use App\Product;
 
 class ProductController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
+      $rowsPerPage = 5;
+        
+      if($request->has('rowsPerPage')){
+        $rowsPerPage = $request->input('rowsPerPage');
+      }
+
       $products = Product::join('categories','products.category_id','=','categories.id')
-      ->select('products.id','products.code','products.name','categories.name as category')
-      ->get();
-      if ($products)
-        return response()->json(['data' => $products], 200);
-      else
-        return response()->json(['error' => 'No se encontraron resultados'], 404);
+                  ->select('products.id','products.code','products.name','categories.name as category')
+                  ->orderBy('id', ' DESC');
+
+      if($request->has('filter')) {
+        $filter = $request->input('filter');
+
+        $products = $products->where(function($query) use ($filter) {
+          $query->where('products.name', 'LIKE', "%". $filter ."%")
+                ->orWhere('products.code', 'LIKE', "%". $filter ."%")
+                ->orWhere('categories.name', 'LIKE', "%". $filter ."%");
+        });
+      }
+
+      $products = $products->paginate($rowsPerPage);
+
+      $response = [
+        'products' => $products,
+        'params' => [
+          'total' => $products->total(),
+          'current_page' => $products->currentPage(),
+          'per_page' => $products->perPage(),     
+        ]
+      ];
+        
+      return response()->json($response);
     }
 
     public function show($id) {
@@ -26,9 +51,9 @@ class ProductController extends Controller
         $product->load('images');
         $product->load('packing');
       } catch (ModelNotFoundException $e) {
-          return response()->json(['error' => 'No se encontro el recurso'], 404);
+          return response()->json(['error' => 'No se encontro el recurso'], 500);
       }
-      return response()->json(['data' => $product], 200);
+      return response()->json(['error' => 'No se encontro el recurso'], 500);
     }
 
     public function store(Request $request){
@@ -150,5 +175,12 @@ class ProductController extends Controller
         array_push($array, $products);
       }
       return response()->json(['data' => $array], 200);
+    }
+
+    public function destroy($id) {
+      if ($id) {
+        Product::destroy($id);
+        return response()->json(['data' => 'deleted correctly']);
+      }
     }
 }

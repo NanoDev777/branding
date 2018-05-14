@@ -11,65 +11,67 @@
             <v-layout>
               <v-flex xs12 sm12 md12 lg12>
                 <v-card>
-                  <div>
-                    <v-dialog v-model="dialog" max-width="500px">
-                      <v-btn dark color="grey darken-1" slot="activator" class="mb-2">Registrar Nueva</v-btn>
-                      <v-card>
-                        <v-card-title>
-                          <span class="headline">{{ formTitle }}</span>
-                        </v-card-title>
-                        <v-card-text>
-                          <v-container grid-list-md>
-                            <v-layout wrap>
-                              <v-flex xs12 sm12 md12>
-                                <v-text-field 
-                                  label="Nombre" 
-                                  v-model="editedItem.name"
-                                  :error-messages="errors.collect('name')"
-                                  v-validate="'required'"
-                                  data-vv-name="name"
-                                  required
-                                ></v-text-field>
-                              </v-flex>
-                              <v-flex xs12 sm12 md12>
-                                <v-text-field label="Descripción" v-model="editedItem.description"></v-text-field>
-                              </v-flex>
-                            </v-layout>
-                          </v-container>
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn :disabled="loader" color="blue darken-1" flat @click.native="close">Cancelar</v-btn>
-                          <v-btn :loading="loader" color="blue darken-1" flat @click.native="save">Aceptar</v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
-                    <v-dialog v-model="deleteDialog" max-width="290">
-                      <v-card>
-                        <v-card-title class="headline">Desea eliminar la categoría?</v-card-title>
-                        <v-card-text>
-                          Si elimina esta categoria, también se eliminaran todos los productos relacionados a ella.
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn :disabled="loader" color="green darken-1" flat="flat" @click.native="deleteDialog = false">Cancelar                
-                          </v-btn>
-                          <v-btn :loading="loader" color="green darken-1" flat="flat" @click.native="destroyItem()">  Aceptar
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
-                    <v-card-title>
-                      <v-spacer></v-spacer>
-                      <v-text-field
-                        append-icon="search"
-                        label="Buscar"
-                        single-line
-                        hide-details
-                        v-model="search"
-                      ></v-text-field>
-                    </v-card-title>
-                    <v-data-table
+                  <v-card-title>
+                    <v-btn dark color="grey darken-1" slot="activator" class="mb-2" @click.native="dialog = true">
+                      <v-icon dark>note_add</v-icon>
+                    </v-btn>
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      append-icon="search"
+                      label="Buscar"
+                      single-line
+                      hide-details
+                      v-model="search"
+                    ></v-text-field>
+                  </v-card-title>
+                  <v-dialog v-model="dialog" max-width="500px">
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">{{ formTitle }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container grid-list-md>
+                          <v-layout wrap>
+                            <v-flex xs12 sm12 md12>
+                              <v-text-field 
+                                label="Nombre" 
+                                v-model="editedItem.name"
+                                :error-messages="errors.collect('name')"
+                                v-validate="'required'"
+                                data-vv-name="name"
+                                required
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex xs12 sm12 md12>
+                              <v-text-field label="Descripción" v-model="editedItem.description"></v-text-field>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="loader" color="blue darken-1" flat @click.native="close">Cancelar</v-btn>
+                        <v-btn :loading="loader" color="blue darken-1" flat @click.native="save">Aceptar</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <v-dialog v-model="deleteDialog" max-width="290">
+                    <v-card>
+                      <v-card-title class="headline">Desea eliminar la categoría?</v-card-title>
+                      <v-card-text>
+                        Si elimina esta categoria, también se eliminaran todos los productos relacionados a ella.
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="loader" color="green darken-1" flat="flat" @click.native="deleteDialog = false">Cancelar                
+                        </v-btn>
+                        <v-btn :loading="loader" color="green darken-1" flat="flat" @click.native="destroyItem()">  Aceptar
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <v-data-table
                       :headers="headers"
                       :items="categories"
                       :search="search"
@@ -92,7 +94,6 @@
                         </v-alert>
                       </template>
                     </v-data-table>
-                  </div>
                 </v-card>
               </v-flex>
             </v-layout>
