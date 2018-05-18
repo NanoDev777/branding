@@ -28,7 +28,7 @@ const mutations = {
 const actions = {
   getCategories({commit}) {
     return new Promise((resolve, reject) => {
-      axios.get('/api/categories')
+      axios.get('/api/list-categories')
       .then((response) => {
         commit('GET_CATEGORIES', response.data.data)
         resolve()

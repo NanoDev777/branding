@@ -20,6 +20,9 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
+        "amcharts3": "github:amcharts/amcharts3",
+        "moment": "^2.22.1",
+        "nprogress": "^0.2.0",
         "vee-validate": "^2.0.8",
         "vue-router": "^3.0.1",
         "vue-snotify": "^3.0.4",

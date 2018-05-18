@@ -32,6 +32,6 @@ class Product extends Model
     }
 
     public function quotations() {
-      return $this->belongsToMany(Quotation::class);
+      return $this->belongsToMany(Quotation::class)->withPivot('quantity');
     }
 }

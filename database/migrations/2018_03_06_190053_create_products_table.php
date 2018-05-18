@@ -22,7 +22,6 @@ class CreateProductsTable extends Migration
             $table->float('height', 8, 2);
             $table->float('thickness', 8, 2);
             $table->float('weight', 8, 2);
-            $table->float('price', 8, 2);
             $table->integer('category_id')->unsigned();
             $table->softDeletes();
             $table->timestamps();

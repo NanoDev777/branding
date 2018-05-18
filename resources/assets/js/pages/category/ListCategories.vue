@@ -1,23 +1,30 @@
 <template>
-  <v-container fluid grid-list-md id="theme">
+  <v-container fluid grid-list-md>
     <v-layout>
       <v-flex d-flex xs12 sm12 md12>
         <v-card>
-          <v-card-title>
-            <h3 class="headline mb-0">Lista de productos</h3>
+          <v-card-title primary-title>
+            <h3 class="headline mb-0">Categorías</h3>
           </v-card-title>
           <v-container fluid>
             <v-layout>
               <v-flex xs12 sm12 md12 lg12>
                 <v-card>
                   <v-card-title>
-                    <v-btn dark color="grey darken-1" slot="activator" to="products/register">
+                    <v-btn
+                      v-if="permission('categories.create')"
+                      dark color="grey darken-1" 
+                      slot="activator" 
+                      class="mb-2" 
+                      to="categories/create"
+                    >
                       <v-icon dark>note_add</v-icon>
+                    </v-btn>
                     </v-btn>
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="search"
-                      @keypress.enter.prevent="getDataFromApi"
+                      @keypress.enter.prevent="filterData"
                       append-icon="search"
                       label="Buscar"
                       single-line
@@ -31,21 +38,33 @@
                     :total-items="totalItems"
                     :loading="loading"
                     class="elevation-1"
-                  > 
+                  >
                     <v-progress-linear height="5" slot="progress" color="warning" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
-                      <td class="justify-center layout px-0">
-                        <v-btn icon class="mx-0" @click="goProduct(props.item.id)">
-                          <v-icon color="grey darken-1">visibility</v-icon>
+                      <td>{{ props.item.name }}</td>
+                      <td>{{ props.item.description }}</td>
+                      <td>{{ props.item.created_at | formatDate('DD/MM/YYYY') }}</td>
+                      <td>{{ props.item.updated_at | formatDate('DD/MM/YYYY') }}</td>
+                      <td>
+                        <v-btn 
+                          v-if="permission('categories.update')"
+                          :to="{ name: 'EditCategory', params: { id: props.item.id }}" 
+                          icon class="mx-0"
+                        >
+                          <v-icon color="teal">edit</v-icon>
+                        </v-btn>
+                        <v-btn 
+                          v-if="permission('categories.destroy')"
+                          icon class="mx-0" 
+                          @click=""
+                        >
+                          <v-icon color="pink">delete</v-icon>
                         </v-btn>
                       </td>
-                      <td>{{ props.item.code }}</td>
-                      <td>{{ props.item.name }}</td>
-                      <td>{{ props.item.category }}</td>
                     </template>
-                    <v-alert slot="no-results" :value="true" color="warning" icon="warning">
-                      Su búsqueda de "{{ search }}" no arrojó ningún resultado.
-                    </v-alert>
+                    <template slot="no-data">
+                      <center>Sin Resultados</center>
+                    </template>
                   </v-data-table>
                 </v-card>
               </v-flex>
@@ -59,28 +78,30 @@
 
 <script>
   import { mapGetters } from 'vuex'
+  import permission from '../../mixins/permission'
 
   export default {
-    name: 'products',
+    name: 'list-categories',
     data () {
       return {
         search: '',
         loading: false,
         headers: [
-          {
-            text: '',
-            align: 'left',
-            sortable: false,
-          },
-          { text: 'Código', value: 'code' },
-          { text: 'Nombre', value: 'name' },
-          { text: 'Categoría', value: 'category' }
+          { text: 'Nombre', value: 'nombre' },
+          { text: 'Descripción', value: 'descripcion' },
+          { text: 'Registrado', value: 'registrado' },
+          { text: 'Actualizado', value: 'actualizado' },
+          { text: 'Acciones', value: 'acciones' }
         ],
         items: [],
         totalItems: 0,
-        pagination: {},
+        pagination: {
+          rowsPerPage: 10
+        }
       }
     },
+
+    mixins: [permission],
 
     watch: {
       pagination: {
@@ -94,25 +115,20 @@
       }
     },
 
-    mounted () {
-      this.getDataFromApi()
-      .then(data => {
-        this.desserts = data.items
-      })
-    },
-
     methods: {
-      goProduct (item) {
-        this.$router.push('/products/profile/' + item)
+      filterData() {
+        this.getDataFromApi().then(data =>{
+          this.items = data.items
+        })
       },
       getDataFromApi() {
         this.loading = true
         return new Promise((resolve, reject) => {
-          const { sortBy, descending, page, rowsPerPage } = this.pagination
+          const { sortBy, descending, page } = this.pagination
           axios.get(this.buildURL())
           .then((response) => {
             this.totalItems = response.data.params.total
-            let items = response.data.products.data
+            let items = response.data.categories.data
             resolve({
               items
             })
@@ -124,7 +140,7 @@
         let page = `?page=${this.pagination.page}`
         let rowsPerPage = `&rowsPerPage=${this.pagination.rowsPerPage}`
         let filter = this.search === '' ? '' : `&filter=${this.search}`
-        return `api/products${page}${rowsPerPage}${filter}`
+        return `api/categories${page}${rowsPerPage}${filter}`
       }
     }
   }

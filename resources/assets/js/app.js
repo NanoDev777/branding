@@ -6,19 +6,24 @@ import VeeValidate from 'vee-validate'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import AmCharts from 'amcharts3'
+import AmSerial from 'amcharts3/amcharts/serial'
+
 
 const options = {
   toast: {
-    timeout: 4000,
+    timeout: 6000,
     showProgressBar: true,
     closeOnClick: true,
-    pauseOnHover: true
+    pauseOnHover: true,
+    icon: '/img/icon.png'
   }
 }
 
 Vue.use(Snotify, options)
 Vue.use(Vuetify)
 Vue.use(VeeValidate)
+Vue.filter('formatDate', require('./filters/formatDate'));
 
 const app = new Vue({
     el: '#app',

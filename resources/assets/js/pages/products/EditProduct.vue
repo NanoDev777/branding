@@ -2,8 +2,7 @@
   <v-container fluid grid-list-md id="theme">
     <v-layout row wrap>
       <v-flex d-flex xs12 sm12 md12>
-        <v-progress-circular indeterminate :size="70" :width="7" color="grey darken-1" v-if="!loader"></v-progress-circular>
-        <v-card v-show="loader">
+        <v-card v-show="success">
           <v-card-title primary-title>
             <h3 class="headline mb-0">Editar producto</h3>
             <v-spacer></v-spacer>
@@ -12,12 +11,7 @@
           <v-container fluid>
             <v-layout>
               <v-flex xs12 sm12 md12 lg12>
-                <v-alert outline color="error" icon="warning" :value="true" v-if="error">
-                  {{ msg }}
-                </v-alert>
-                <v-card v-show="!error">
-                  <v-progress-linear :indeterminate="true" color="yellow accent-3" v-if="loading">
-                  </v-progress-linear>
+                <v-card>
                   <v-card-text>
                     <v-form v-model="valid" ref="form" lazy-validation>
                     <v-layout row wrap>
@@ -150,7 +144,7 @@
                   </v-card-text>
                   <v-divider class="mt-5"></v-divider>
                   <v-card-actions>
-                    <v-btn :disabled="loading" :to="{ name: 'Product', params: { id: id }}">
+                    <v-btn :disabled="loading" :to="`/products/${id}`">
                       Cancelar
                     </v-btn>
                     <v-spacer></v-spacer>
@@ -173,23 +167,21 @@
   import Colors from '../../components/Colors.vue'
 
   export default {
-    name: 'editproduct',
+    name: 'edit-product',
     props: ["id"],
     components: {
       'create-color' : Colors
     },
     data: () => ({
-      loader: false,
+      success: false,
       loading: false,
-      error: false,
-      msg:'',
       valid: true,
+      flag: false,
       select: [],
       form: {
         code: '',
         name: '',
         description: '',
-        size: '',
         width: null,
         height: null,
         thickness: null,
@@ -197,7 +189,6 @@
         category: null,
         items: []
       },
-      flag: false,
       codeRules: [
         v => !!v || 'El código es requerido',
         v => (v && v.length <= 10) || 'No debe sobrepasar los 10 caracteres'
@@ -279,9 +270,8 @@
     },
 
     created () {
-      if (this.colors.length === 0)
-        this.$store.dispatch("getColors")
-
+      this.$store.dispatch("getColors")
+      this.$store.dispatch("getCategories")
       this.showProduct()
     },
 
@@ -289,41 +279,36 @@
       showProduct() {
         axios.get('/api/product/' + this.id)
         .then(response => {
-          this.form.code = response.data.data.code
-          this.form.name = response.data.data.name
-          this.form.description = response.data.data.description
-          this.form.size = response.data.data.size
-          this.form.width = response.data.data.width
-          this.form.height = response.data.data.height
-          this.form.thickness = response.data.data.thickness
-          this.form.weight = response.data.data.weight
-          this.form.price = response.data.data.price
-          this.form.category = response.data.data.category_id
+          if (response.data.success) {
+            this.form.code = response.data.data.code
+             this.form.name = response.data.data.name
+            this.form.description = response.data.data.description
+            this.form.width = response.data.data.width
+            this.form.height = response.data.data.height
+            this.form.thickness = response.data.data.thickness
+            this.form.weight = response.data.data.weight
+            this.form.category = response.data.data.category_id
 
-          let colors = response.data.data.colors
+            let colors = response.data.data.colors
 
-          colors.forEach( (obj) => this.select.push(obj.id))
+            colors.forEach( (obj) => this.select.push(obj.id))
 
-          this.form.items = colors.map((obj) => { 
-            let rObj = {}
-            rObj['id'] = obj.id
-            rObj['name'] = obj.name
-            let array
-            if (obj.pivot['size'] == 'S/T') {
-              array = []
-            }else {
+            this.form.items = colors.map((obj) => { 
+              let rObj = {}
+              rObj['id'] = obj.id
+              rObj['name'] = obj.name
+              let array
+              if (obj.pivot['size'] == 'S/T') {
+                array = []
+              }else {
               array = obj.pivot['size'].split(",")
-            }
-            rObj['size'] = { value: array }
-            return rObj
-          })
-          this.flag = true
-          this.loader = true
-        })
-        .catch(error => {
-          this.loader = true
-          this.error = true
-          this.msg = error.response.data.error
+              }
+              rObj['size'] = { value: array }
+              return rObj
+            })
+            this.flag = true
+            this.success = response.data.success
+          }
         })
       },
 
@@ -331,15 +316,12 @@
         this.loading = true
         axios.put(`/api/product/${this.id}`, this.form)
         .then((response) => {
-          this.$store.dispatch("updateProduct", response.data.data)
-          .then(()=>{
-            this.loading = false
-            this.$snotify.success(response.data.msg, 'Felicidades')
-          })
+          this.loading = false
+          this.$router.push('/products')
+          this.$snotify.success(response.data.message, 'Felicidades')
         })
         .catch((error) => {
           this.loading = false
-          this.$snotify.error(error.response.data.msg, 'Error')
         })
       },
 

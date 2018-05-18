@@ -18,8 +18,11 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email', 128)->unique();
             $table->string('password');
-            $table->rememberToken();
+            $table->boolean('active');
+            $table->integer('profile_id')->unsigned();
             $table->timestamps();
+
+            $table->foreign('profile_id')->references('id')->on('profiles');
         });
     }
 

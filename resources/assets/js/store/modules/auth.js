@@ -3,7 +3,8 @@ import axios from 'axios'
 const state = {
   user: null,
   authenticated: false,
-  token: null
+  token: null,
+  expiration: null
 }
 
 const mutations = {
@@ -11,6 +12,10 @@ const mutations = {
     localStorage.setItem('token', data)
     state.token = data
     state.authenticated = true
+  },
+
+  SAVE_EXPIRATION(state, expires) {
+    state.expiration = expires
   },
 
   SET_CURRENT_USER(state, data) {
@@ -21,7 +26,7 @@ const mutations = {
     localStorage.removeItem('token')
     state.token = null
     state.authenticated = false
-    state.user = null
+    state.expiration = null
   }
 }
 
@@ -30,28 +35,33 @@ const actions = {
     commit('SAVE_TOKEN', token)
   },
 
-  setCurrentUser({commit}, user) {
-    commit('SET_CURRENT_USER', user)
+  saveExpiration({commit}, expires) {
+    commit('SAVE_EXPIRATION', expires)
   },
 
-  async logout ({ commit }) {
+  /*setCurrentUser({commit}, user) {
+    commit('SET_CURRENT_USER', user)
+  },*/
+
+  getDataUser({commit}) {
+    return new Promise((resolve, reject) => {
+      axios.get('api/autenticado')
+      .then((response) => {
+        commit('SET_CURRENT_USER', response.data)
+        resolve()
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    }, error => console.log(error))
+  },
+
+  async logout ({ commit }, id) {
     try {
-      await axios.post('/api/logout')
+      await axios.post('/api/logout', { id: id })
     } catch (e) { }
 
     commit('LOGOUT')
-  },
-
-  refreshToken({commit}) {
-    return new Promise((resolve, reject) => {
-      axios.post('/api/refresh-token')
-      .then(function (response) {
-        resolve(response)
-      })
-      .catch(function (error) {
-        reject(error)
-      });
-    }, error => console.log(error))
   }
 }
 

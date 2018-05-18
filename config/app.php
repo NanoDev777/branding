@@ -165,7 +165,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         //add
-        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+        //Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Elibyy\TCPDF\ServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,

@@ -1,9 +1,8 @@
 <template>
-  <div>
   <v-container fluid grid-list-md>
     <v-layout>
       <v-flex d-flex xs12 sm12 md12>
-        <v-card v-show="loading">
+        <v-card>
           <v-card-title primary-title>
             <h3 class="headline mb-0">Categorías</h3>
           </v-card-title>
@@ -80,7 +79,7 @@
                         <td>{{ props.item.name }}</td>
                         <td>{{ props.item.description }}</td>
                         <td>
-                          <v-btn icon class="mx-0" @click="editItem(props.item)">
+                          <v-btn v-if="permission('categories.update')" icon class="mx-0" @click="editItem(props.item)">
                             <v-icon color="teal">edit</v-icon>
                           </v-btn>
                           <v-btn icon class="mx-0" @click="showDeleteDialog(props.item)">
@@ -102,16 +101,11 @@
       </v-flex>
     </v-layout>
   </v-container>
-  <v-container fluid fill-height>
-    <v-layout justify-center align-center>
-      <v-progress-circular indeterminate :size="70" :width="7" color="grey darken-1" v-if="!loading"></v-progress-circular>
-    </v-layout>
-  </v-container>
-  </div>
 </template>
 
 <script>
   import { mapGetters } from 'vuex'
+  import permission from '../../mixins/permission'
 
   export default {
     $_veeValidate: {
@@ -147,6 +141,8 @@
         }
       }
     }),
+
+    mixins: [permission],
 
     computed: {
       formTitle () {

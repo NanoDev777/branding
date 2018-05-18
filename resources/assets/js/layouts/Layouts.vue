@@ -46,6 +46,7 @@
               v-for="(child, i) in item.children"
               :key="i"
               router :to="child.url"
+              v-show="permission(child.permission) || child.permission ==''"
             >
               <v-list-tile-action v-if="child.icon">
                 <v-icon>{{ child.icon }}</v-icon>
@@ -57,7 +58,7 @@
               </v-list-tile-content>
             </v-list-tile>
           </v-list-group>
-          <v-list-tile v-else :key="item.text" router :to="item.url">
+          <v-list-tile v-else :key="item.text" router :to="item.url" v-show="permission(item.permission) || item.permission ==''">
             <v-list-tile-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
@@ -87,6 +88,7 @@
 <script>
   import AppFooter from '../components/AppFooter.vue'
   import AppToolbar from '../components/AppToolbar.vue'
+  import permission from '../mixins/permission'
 
   export default {
     name: 'layouts',
@@ -100,18 +102,18 @@
         drawer: true,
         miniVariant: false,
         items: [
-        { icon: 'home', text: 'Inicio', url: '/dashboard' },
-        { icon: 'local_grocery_store', text: 'Productos', url: '/products' },
-        { icon: 'local_offer', text: 'Categorías', url: '/categories' },
-        { icon: 'monetization_on', text: 'Precios', url: '/prices' },
+        { icon: 'home', text: 'Inicio', url: '/dashboard', permission: '' },
+        { icon: 'local_grocery_store', text: 'Productos', url: '/products', permission: 'products.index' },
+        { icon: 'local_offer', text: 'Categorías', url: '/categories', permission: 'categories.index' },
+        { icon: 'monetization_on', text: 'Precios', url: '/prices', permission: 'prices.index' },
         {
           icon: 'find_in_page',
           'icon-alt': 'find_in_page',
           text: 'Cotización',
           model: false,
           children: [
-            { icon: 'assignment', text: 'Ver lista', url: '/quotations' },
-            { icon: 'note_add', text: 'Generar nueva', url: '/quotations/create' }
+            { icon: 'assignment', text: 'Ver lista', url: '/quotations', permission: 'quotations.index' },
+            { icon: 'note_add', text: 'Generar nueva', url: '/quotations/create', permission: 'quotations.create' }
           ]
         },
         {
@@ -120,22 +122,16 @@
           text: 'Configuración',
           model: false,
           children: [
-            { icon: 'security', text: 'Roles y permisos', url: '/roles' },
-            { icon: 'group', text: 'Usuarios', url: '/users' }
+            { icon: 'security', text: 'Perfil y permisos', url: '/profiles', permission: 'profiles.index' },
+            { icon: 'group', text: 'Usuarios', url: '/users', permission: 'users.index' }
           ]
         }
       ],
         width: 220
       }
     },
-    computed: {
-      name () {
-        return this.$route.name
-      },
-      list () {
-        return this.$route.matched
-      }
-    }
+
+    mixins: [permission]
   }
 </script>
 

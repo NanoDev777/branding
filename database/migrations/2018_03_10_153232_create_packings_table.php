@@ -23,7 +23,9 @@ class CreatePackingsTable extends Migration
             $table->integer('product_id')->unsigned();
             $table->timestamps();
 
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->foreign('product_id')->references('id')->on('products')
+                  ->onDelete('cascade')
+                  ->onUpdate('cascade');
         });
     }
 

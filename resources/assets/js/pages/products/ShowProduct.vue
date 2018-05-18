@@ -2,19 +2,7 @@
   <v-container fluid grid-list-md>
     <v-layout row wrap>
       <v-flex d-flex xs12 sm12 md12>
-        <v-progress-circular indeterminate :size="70" :width="7" color="grey darken-1" v-if="loading"></v-progress-circular>
-        <v-card v-show="!loading">
-          <v-dialog v-model="dialog" persistent max-width="290">
-            <v-card>
-              <v-card-title class="headline">Eliminar Producto</v-card-title>
-              <v-card-text>Realmente desea eliminar los datos de este producto?</v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click.native="dialog = false">Cancelar</v-btn>
-                <v-btn color="blue darken-1" flat @click="deleteProduct">Aceptar</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+        <v-card v-show="success">
           <v-tabs
             fixed-tabs
             v-model="active"
@@ -34,11 +22,13 @@
                             v-for="(item,i) in images"
                             :key="i"
                             :src="'/img/'+item.image">
+                            <a class="demo-trigger" :href="'/img/'+item.image">
                             <div title="Eliminar Imagen">
                               <v-btn fab flat small color="red accent-3" @click="click(item.id)" :loading="imgloader">
                                 <v-icon>delete_forever</v-icon>
                               </v-btn>
                             </div>
+                            </a>
                           </v-carousel-item>
                         </v-carousel>
                       </v-card>
@@ -99,15 +89,6 @@
                           </v-flex>
                         </v-layout>
                       </v-card-title>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn flat color="yellow accent-3" :to="{ name: 'EditProduct', params: { id: id }}">
-                          <v-icon>edit</v-icon>
-                        </v-btn>            
-                        <v-btn flat color="red accent-3" slot="activator" @click.native="dialog = true">
-                          <v-icon>delete</v-icon>
-                        </v-btn>
-                      </v-card-actions>
                     </v-card>
                   </v-flex>
                 </v-layout>
@@ -204,10 +185,10 @@
 </template>
 
 <script>
-import FileInput from '../../components/FileInput.vue'
+  import FileInput from '../../components/FileInput.vue'
 
   export default {
-    name: 'product',
+    name: 'show-product',
     props: ["id"],
     components: {
       'file-input' : FileInput
@@ -215,9 +196,8 @@ import FileInput from '../../components/FileInput.vue'
     data () {
       return {
         active: null,
-        loading: true,
+        success: false,
         loader: false,
-        dialog: false,
         imgloader: false,
         code: null,
         name: '',
@@ -279,9 +259,11 @@ import FileInput from '../../components/FileInput.vue'
     },
     computed: {
     },
+
     created() {
       this.showProduct()
     },
+
     methods: {
       click(id) {
         let r = confirm('Realmente desea eliminar esta imagen?')
@@ -303,46 +285,32 @@ import FileInput from '../../components/FileInput.vue'
       showProduct() {
         axios.get('/api/product/' + this.id)
         .then(response => {
-          this.code = response.data.data.code
-          this.name = response.data.data.name
-          this.description = response.data.data.description
-          this.height = response.data.data.height
-          this.width = response.data.data.width
-          this.thickness = response.data.data.thickness
-          this.weight = response.data.data.weight
-          this.images = response.data.data.images.map(({id, image}) => ({id, image}))
-          if (response.data.data.packing !== null) {
-            this.packing.id = response.data.data.packing.id
-            this.packing.width = response.data.data.packing.width
-            this.packing.height = response.data.data.packing.height
-            this.packing.thickness = response.data.data.packing.thickness
-            this.packing.weight = response.data.data.packing.weight
-            this.packing.box = response.data.data.packing.box
+          if (response.data.success) {
+            this.code = response.data.data.code
+            this.name = response.data.data.name
+            this.description = response.data.data.description
+            this.height = response.data.data.height
+            this.width = response.data.data.width
+            this.thickness = response.data.data.thickness
+            this.weight = response.data.data.weight
+            this.images = response.data.data.images.map(({id, image}) => ({id, image}))
+            if (response.data.data.packing !== null) {
+              this.packing.id = response.data.data.packing.id
+              this.packing.width = response.data.data.packing.width
+              this.packing.height = response.data.data.packing.height
+              this.packing.thickness = response.data.data.packing.thickness
+              this.packing.weight = response.data.data.packing.weight
+              this.packing.box = response.data.data.packing.box
+            }
+            let colors = response.data.data.colors
+            this.colors = colors.map((obj) => { 
+              let rObj = {}
+              rObj['name'] = obj.name
+              rObj['size'] = obj.pivot['size']
+              return rObj
+            })
+            this.success = response.data.success
           }
-          let colors = response.data.data.colors
-          this.colors = colors.map((obj) => { 
-            let rObj = {}
-            rObj['name'] = obj.name
-            rObj['size'] = obj.pivot['size']
-            return rObj
-          })
-          this.loading = false
-        })
-        .catch(error => {
-          this.loading = false
-          this.$snotify.error(error.response.data.error, 'Error')
-        })
-      },
-      deleteProduct() {
-        axios.delete('/api/product/'+this.id)
-        .then((response) => {
-          console.log(response)
-          this.dialog = false
-          this.$router.push({ name: 'Products' })
-          this.$snotify.success(response.data.data, 'Felicidades')
-        })
-        .catch((error) => {
-          console.log(error)
         })
       },
       goPacking() {

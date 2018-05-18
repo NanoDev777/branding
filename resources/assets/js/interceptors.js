@@ -1,6 +1,7 @@
 import axios from 'axios'
 import store from './store'
 import router from './router'
+import NProgress from 'nprogress'
 /**
  * Request
  */
@@ -9,9 +10,8 @@ axios.interceptors.request.use(
   (config) => {
 
     
-    /*if (router.options.routes[1].path != '/login') {
-      NProgress.start()
-    }*/
+    NProgress.start()
+
     
     var token = localStorage.getItem('token')
 
@@ -34,24 +34,26 @@ axios.interceptors.request.use(
  */
 axios.interceptors.response.use(
   (response) => {
+    NProgress.done()
     return response
   },
   (error) => {
+    NProgress.done()
     const originalRequest = error.config
     
-    if (error.response.status >= 500) {
+    /*if (error.response.status >= 500) {
       store.dispatch('responseMessage', {
         type: 'error',
         text: error.response.data.error,
         title: 'Error',
         modal: true
       })
-    }
+    }*/
     // token expired
-    if (error.response.status === 401 && error.response.data.error == "token_expired") {
+    if (error.response.status === 401 && error.response.data.status == "expired") {
       store.dispatch('responseMessage', {
         type: 'warning',
-        text: 'Por favór, vuelva a iniciar sesión para poder continuar...',
+        text: error.response.data.message,
         title: 'Sesión Expirada!',
         modal: true
       })
@@ -59,9 +61,36 @@ axios.interceptors.response.use(
         await store.dispatch('logout')
         router.push({ name: 'login' })
       })
+    }
 
+    if (error.response.status >= 500) {
+      store.dispatch('responseMessage', {
+        type: 'error',
+        text: error.response.data.message,
+        title: 'Error',
+        modal: true
+      })
+    }
 
-      /*originalRequest._retry = true
+    if (error.response.status === 401 && error.response.data.status == "unauthorized") {
+      store.dispatch('responseMessage', {
+        type: 'warning',
+        text: error.response.data.message,
+        title: 'No Autorizado',
+        modal: true
+      })
+    }
+
+    if (error.response.status === 404) {
+      store.dispatch('responseMessage', {
+        type: 'warning',
+        text: error.response.data.message,
+        title: 'No Disponible',
+        modal: true
+      })
+    }
+
+     /* originalRequest._retry = true
 
       store.dispatch('logout').then((response) => {
         // console.log(response)
@@ -80,8 +109,8 @@ axios.interceptors.response.use(
         }).catch(() => {
           router.push({ name: 'login' })
         })
-      })*/
-    }
+      })
+    }*/
 
     return Promise.reject(error)
   }

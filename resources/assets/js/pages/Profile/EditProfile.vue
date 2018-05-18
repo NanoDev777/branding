@@ -2,7 +2,7 @@
   <v-container fluid grid-list-md>
     <v-layout>
       <v-flex d-flex xs12 sm12 md12>
-        <b>create rol</b>
+        <b>edit profile</b>
       </v-flex>
     </v-layout>
   </v-container>
@@ -10,7 +10,7 @@
 
 <script>
   export default {
-    name: 'create-rol',
+    name: 'edit-profile',
     data () {
       return {
         
