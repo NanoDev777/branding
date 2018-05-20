@@ -96,7 +96,7 @@
               this.$store.dispatch('getDataUser')
               .then(()=>{
                 this.$router.push({ name: 'Home' })
-                this.$snotify.success('Ingreso correctamente al sistema!', 'Bienvenido')
+                this.$snotify.simple('Ingreso correctamente al sistema!', 'Bienvenido')
               })
             }
           })

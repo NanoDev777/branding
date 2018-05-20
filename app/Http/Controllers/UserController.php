@@ -54,6 +54,17 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function store(Request $request)
+    {
+        $inputs = $request->all();
+        User::create($inputs);
+        return response()->json([
+            'success' => true,
+            'status'  => 'positive',
+            'message' => message('MSG001'),
+        ]);
+    }
+
     public function authenticated()
     {
         $auth = auth()->user();

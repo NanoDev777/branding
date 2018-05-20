@@ -106,9 +106,12 @@ class ProfileController extends Controller
         }
     }
     function list() {
-        $profiles = Profile::orderBy('order')->get();
+        $profiles = DB::table('profiles')
+            ->orderBy('id', 'desc')
+            ->get();
         return response()->json([
-            'list' => $profiles,
+            'success' => true,
+            'list'    => $profiles,
         ]);
     }
     private function syncActions(Profile $profile, array $actions)

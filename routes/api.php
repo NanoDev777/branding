@@ -61,6 +61,7 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
 
     //Profiles
     Route::get('profiles', 'ProfileController@index')->name('profiles.index');
+    Route::get('list-profiles', 'ProfileController@list');
     Route::get('profile/{id}', 'ProfileController@show')->name('profiles.show');
     Route::post('create-profile', 'ProfileController@store')->name('profiles.create');
     Route::put('profile/{id}', 'ProfileController@update')->name('profiles.update');
