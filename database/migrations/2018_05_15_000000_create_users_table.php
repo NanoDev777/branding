@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateUsersTable extends Migration
 {
@@ -20,9 +20,12 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->boolean('active');
             $table->integer('profile_id')->unsigned();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('profile_id')->references('id')->on('profiles');
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

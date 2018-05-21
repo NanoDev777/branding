@@ -3,6 +3,7 @@
     <v-layout>
       <v-flex d-flex xs12 sm12 md12>
         <v-card>
+          <modal-delete :loader="loader" :dialog="dialog" @hide="hide" @deleted="deleted"></modal-delete>
           <v-card-title primary-title>
             <h3 class="headline mb-0">Perfiles</h3>
           </v-card-title>
@@ -55,7 +56,7 @@
                         <v-btn 
                           v-if="permission('profiles.destroy')"
                           icon class="mx-0" 
-                          @click=""
+                          @click="showModal(props.item.id)"
                         >
                           <v-icon color="pink">delete</v-icon>
                         </v-btn>
@@ -77,12 +78,15 @@
 
 <script>
   import permission from '../../mixins/permission'
+  import ModalDelete from '../../components/ModalDelete.vue'
 
   export default {
     name: 'list-profiles',
     data () {
       return {
         search: '',
+        dialog: false,
+        loader: false,
         loading: false,
         headers: [
           { text: 'Descripción', value: 'descripcion' },
@@ -96,6 +100,10 @@
           rowsPerPage: 10
         }
       }
+    },
+
+    components: {
+      'modal-delete' : ModalDelete
     },
 
     mixins: [permission],
@@ -113,11 +121,38 @@
     },
 
     methods: {
+       showModal(id) {
+        this.dialog = true
+        this.id = id
+      },
+
+      hide() {
+        this.dialog = false
+      },
+
+      deleted() {
+        this.loader = true
+        axios.delete(`/api/profile/${this.id}`)
+        .then((response) => {
+          this.loader = false
+          this.dialog = false
+          this.$snotify.simple(response.data.message, 'Felicidades')
+          this.getDataFromApi().then(data =>{
+            this.items = data.items
+          })
+        })
+        .catch((error) => {
+          this.loader = false
+          this.dialog = false
+        })
+      },
+
       filterData() {
         this.getDataFromApi().then(data =>{
           this.items = data.items
         })
       },
+
       getDataFromApi() {
         this.loading = true
         return new Promise((resolve, reject) => {
@@ -133,6 +168,7 @@
           })
         })
       },
+
       buildURL() {
         let page = `?page=${this.pagination.page}`
         let rowsPerPage = `&rowsPerPage=${this.pagination.rowsPerPage}`

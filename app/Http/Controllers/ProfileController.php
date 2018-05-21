@@ -91,7 +91,10 @@ class ProfileController extends Controller
     public function destroy($id)
     {
         try {
-            Perfil::destroy($id);
+            $profile = Profile::find($id);
+            $profile->users()->update(['active' => 0]);
+            $profile->delete();
+
             return response()->json([
                 'success' => true,
                 'status'  => 'positive',
