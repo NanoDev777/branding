@@ -21,14 +21,12 @@
                           <v-carousel-item
                             v-for="(item,i) in images"
                             :key="i"
-                            :src="'/img/'+item.image">
-                            <a class="demo-trigger" :href="'/img/'+item.image">
+                            :src="'/img/products/'+item.image">
                             <div title="Eliminar Imagen">
                               <v-btn fab flat small color="red accent-3" @click="click(item.id)" :loading="imgloader">
                                 <v-icon>delete_forever</v-icon>
                               </v-btn>
                             </div>
-                            </a>
                           </v-carousel-item>
                         </v-carousel>
                       </v-card>
@@ -71,21 +69,6 @@
                                 </v-data-table>
                               </v-flex>
                             </v-layout>
-                            <v-layout>
-                              <v-flex xs12 sm12 md12 lg12>
-                                <v-data-table
-                                  :headers="headerPrice"
-                                  :items="colors"
-                                  hide-actions
-                                  class="elevation-1"
-                                >
-                                  <template slot="items" slot-scope="props">
-                                    <td>{{ props.item.name }}</td>
-                                    <td>{{ props.item.size }} </td>
-                                  </template>
-                                </v-data-table>
-                              </v-flex>
-                            </v-layout>
                           </v-flex>
                         </v-layout>
                       </v-card-title>
@@ -99,6 +82,15 @@
               Imagenes y Embalaje
             </v-tab>
             <v-tab-item>
+              <v-card flat>
+                <v-container fluid>
+                  <v-layout>
+                    <v-flex xs12 sm12 md12 lg12>
+                      <amount :amounts="amounts"></amount>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
               <v-card flat>
                 <v-container fluid>
                   <v-layout>
@@ -186,12 +178,14 @@
 
 <script>
   import FileInput from '../../components/FileInput.vue'
+  import Amount from '../../components/Amount.vue'
 
   export default {
     name: 'show-product',
     props: ["id"],
     components: {
-      'file-input' : FileInput
+      'file-input' : FileInput,
+      'amount' : Amount
     },
     data () {
       return {
@@ -217,6 +211,7 @@
           box: '',
           product: parseInt(this.id)
         },
+        amounts: [],
         valid: true,
         widthRules: [
           v => !!v || 'Este campo es requerido',
@@ -257,8 +252,6 @@
         ]
       }
     },
-    computed: {
-    },
 
     created() {
       this.showProduct()
@@ -273,12 +266,11 @@
           .then((response) => {
             let index = this.images.findIndex(x => x.id === id)
             this.images.splice(index, 1)
+            this.$snotify.simple(response.data.message, 'Felicidades')
             this.imgloader = false
-            this.$snotify.success(response.data.response, 'Felicidades')
           })
-          .catch((error) => {
+          .catch(error => {
             this.imgloader = false
-            this.$snotify.error(error.response.data.error, 'Error')
           })
         }
       },
@@ -294,6 +286,14 @@
             this.thickness = response.data.data.thickness
             this.weight = response.data.data.weight
             this.images = response.data.data.images.map(({id, image}) => ({id, image}))
+            this.amounts = response.data.data.amounts.map((obj) => { 
+              let rObj = {}
+              rObj['id'] = obj.id
+              rObj['quantity'] = obj.quantity
+              rObj['price'] = obj.price
+              rObj['loader'] = false
+              return rObj
+            })
             if (response.data.data.packing !== null) {
               this.packing.id = response.data.data.packing.id
               this.packing.width = response.data.data.packing.width
@@ -325,18 +325,19 @@
           this.loader = true
           axios.post('/api/create-packing', this.packing)
           .then((response) => {
-            this.packing.id = response.data.data.id
-            this.packing.width = response.data.data.width
-            this.packing.height = response.data.data.height
-            this.packing.thickness = response.data.data.thickness
-            this.packing.weight = response.data.data.weight
-            this.packing.box = response.data.data.box
-            this.$snotify.success('Registrado correctamente!', 'Felicidades')
+            if (response.data.success) {
+              this.packing.id = response.data.data.id
+              this.packing.width = response.data.data.width
+              this.packing.height = response.data.data.height
+              this.packing.thickness = response.data.data.thickness
+              this.packing.weight = response.data.data.weight
+              this.packing.box = response.data.data.box
+              this.$snotify.simple(response.data.message, 'Felicidades')
+            }
             this.loader = false
           })
           .catch((error) => {
             this.loader = false
-            this.$snotify.error(error.response.data.msg, 'Error')
           })
         }
       },
@@ -345,17 +346,18 @@
           this.loader = true
           axios.put(`/api/packing/${this.packing.id}`, this.packing)
           .then((response) => {
-            this.packing.width = response.data.data.width
-            this.packing.height = response.data.data.height
-            this.packing.thickness = response.data.data.thickness
-            this.packing.weight = response.data.data.weight
-            this.packing.box = response.data.data.box
-            this.$snotify.success('Editado correctamente!', 'Felicidades')
+            if (response.data.success) {
+              this.packing.width = response.data.data.width
+              this.packing.height = response.data.data.height
+              this.packing.thickness = response.data.data.thickness
+              this.packing.weight = response.data.data.weight
+              this.packing.box = response.data.data.box
+              this.$snotify.simple(response.data.message, 'Felicidades')
+            }
             this.loader = false
           })
           .catch((error) => {
             this.loader = false
-            this.$snotify.error(error.response.data.msg, 'Error')
           })
         }
       },
@@ -368,3 +370,8 @@
     }
   } 
 </script>
+<style scoped>
+  table.table tbody td, table.table tbody th {
+    height: 30px;
+  }
+</style>

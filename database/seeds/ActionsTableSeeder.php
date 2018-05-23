@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\Action;
+use Illuminate\Database\Seeder;
 
 class ActionsTableSeeder extends Seeder
 {
@@ -44,5 +44,8 @@ class ActionsTableSeeder extends Seeder
         Action::create(['name' => 'Detalle de usuario', 'method' => 'users.show', 'order' => 24]);
         Action::create(['name' => 'Actualizar usuario', 'method' => 'users.show|users.update', 'order' => 25]);
         Action::create(['name' => 'Eliminar usuario', 'method' => 'users.destroy', 'order' => 26]);
+
+        Action::create(['name' => 'Lista de costos', 'method' => 'costs.index', 'order' => 27]);
+        Action::create(['name' => 'Actualizar costos', 'method' => 'costs.update', 'order' => 28]);
     }
 }

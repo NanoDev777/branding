@@ -74,10 +74,15 @@
           this.loader = true
           axios.post('/api/create-image',{image: this.imageFile, id: this.product})
           .then(response => {
-            this.$emit('data-received',response.data.data)
+            if (response.data.success) {
+              this.$emit('data-received',response.data.data)
+              this.$snotify.simple(response.data.message, 'Felicidades')
+            }
             this.loader = false
-            this.$snotify.success('Se guardo la imagen correctamente!', 'Felicidades')
-          });
+          })
+          .catch(error =>{
+            this.loader = false
+          })
         }
       }
     }

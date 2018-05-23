@@ -25,7 +25,9 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     Route::get('filter-products/{category}', 'ProductController@filterProducts');
     Route::get('search-product/{code}', 'ProductController@searchProduct');
     Route::post('select-product', 'ProductController@selectProduct');
+    //reports queries
     Route::get('max-products', 'ProductController@maxProducts');
+    Route::get('total-products', 'ProductController@totalProductsQuotations');
 
     //Images
     Route::post('create-image', 'ImageController@store')->name('products.create');
@@ -33,7 +35,11 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
 
     //Packing
     Route::post('create-packing', 'PackingController@store')->name('products.create');
-    Route::put('packing/{id}', 'PackingController@update')->name('products.show');
+    Route::put('packing/{id}', 'PackingController@update')->name('products.create');
+
+    //Amount
+    Route::post('create-amount', 'AmountController@store')->name('products.create');
+    Route::put('amount/{id}', 'AmountController@update')->name('products.create');
 
     //Colors
     Route::get('colors', 'ColorController@index');
@@ -53,6 +59,10 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     Route::post('create-price', 'PriceController@store')->name('prices.create');
     Route::put('price/{id}', 'PriceController@update')->name('prices.update');
     Route::delete('price/{id}', 'PriceController@destroy')->name('prices.destroy');
+
+    //Costs
+    Route::get('costs', 'CostController@index')->name('costs.index');
+    Route::put('cost/{id}', 'CostController@update')->name('costs.update');
 
     //Quotations
     Route::get('quotations', 'QuotationController@index')->name('quotations.index');
@@ -80,4 +90,14 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     //Reports
     Route::post('reporte', 'ReportesController@savePDF');
     Route::post('delete', 'ReportesController@deletePDF');
+});
+
+Route::get('test', function () {
+    $prices = App\Price::orderBy('id', 'ASC')->select('id', 'quantity', 'logo', 'utility')->get();
+    $val    = [];
+    $c      = 0;
+    foreach ($prices as $key => $value) {
+        $var = $value;
+        echo json_encode($var->logo);
+    }
 });

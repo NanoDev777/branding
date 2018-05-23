@@ -55,16 +55,17 @@
           .then(response => {
             this.$store.dispatch('addColor', response.data.data)
               .then(() => {
+                if (response.data.success) {
+                  this.reset()
+                  this.$snotify.simple(response.data.message, 'Felicidades')
+                }
                 this.dialog = false
                 this.loader = false
-                this.reset()
-                this.$snotify.success(response.data.msg, 'Felicidades')
               })
           })
           .catch(e => {
             this.dialog = false
             this.loader = false
-            this.$snotify.error(e.response.data.msg, 'Error')
           })
         }
       },

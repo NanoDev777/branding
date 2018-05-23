@@ -28,7 +28,7 @@
                       :key="JSON.stringify(data.item)"
                     >
                     <v-avatar>
-                      <img :src="data.item.avatar">
+                      <img :src="`/img/products/${data.item.avatar}`">
                     </v-avatar>
                     {{ data.item.code }}
                     </v-chip>
@@ -39,7 +39,7 @@
                     </template>
                     <template v-else>
                       <v-list-tile-avatar>
-                        <img :src="data.item.avatar">
+                        <img :src="`/img/products/${data.item.avatar}`">
                       </v-list-tile-avatar>
                       <v-list-tile-content>
                         <v-list-tile-title v-html="data.item.code"></v-list-tile-title>
@@ -75,7 +75,7 @@
                           lazy
                           persistent
                           cancel-text="cancelar"
-                          save-text="guardar"
+                          save-text="aceptar"
                         >
                         <div>{{ props.item.quantity }}</div>
                         <div slot="input" class="mt-3 title">Cantidad</div>
@@ -105,7 +105,7 @@
                               id="img"
                             >
                               <v-avatar>
-                                <img :src="data.item.image">
+                                <img :src="`/img/products/${data.item.image}`">
                               </v-avatar>
                             </v-chip>
                           </template>
@@ -115,7 +115,7 @@
                             </template>
                             <template v-else>
                               <v-list-tile-avatar>
-                                <img :src="data.item.image">
+                                <img :src="`/img/products/${data.item.image}`">
                               </v-list-tile-avatar>
                             </template>
                           </template>

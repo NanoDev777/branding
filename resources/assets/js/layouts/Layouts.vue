@@ -122,6 +122,7 @@
           text: 'Configuración',
           model: false,
           children: [
+            { icon: 'euro_symbol', text: 'Costos', url: '/costs', permission: 'costs.index' },
             { icon: 'security', text: 'Perfil y permisos', url: '/profiles', permission: 'profiles.index' },
             { icon: 'group', text: 'Usuarios', url: '/users', permission: 'users.index' }
           ]

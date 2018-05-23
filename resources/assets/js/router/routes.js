@@ -18,6 +18,9 @@ import ListPrices from '../pages/price/ListPrices.vue'
 import CreatePrice from '../pages/price/CreatePrice.vue'
 import EditPrice from '../pages/price/EditPrice.vue'
 
+//costs
+import Costs from '../pages/costs/Costs.vue'
+
 //quotation
 import Quotations from '../pages/quotation/ListQuotations.vue'
 import CreateQuotation from '../pages/quotation/CreateQuotation.vue'
@@ -207,6 +210,11 @@ export default [
             component: FormProfile,
           }
         ]
+      },
+      {
+        path: '/costs', 
+        name: 'Costs', 
+        component: Costs
       }
     ]  
   },

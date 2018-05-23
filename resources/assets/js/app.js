@@ -12,7 +12,7 @@ import AmSerial from 'amcharts3/amcharts/serial'
 
 const options = {
   toast: {
-    timeout: 6000,
+    timeout: 4000,
     showProgressBar: true,
     closeOnClick: true,
     pauseOnHover: true,

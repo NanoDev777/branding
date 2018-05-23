@@ -13,7 +13,7 @@
                       <v-icon>assignment_turned_in</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
-                    <span class="headline">3000</span>
+                    <span class="headline">{{ products }}</span>
                   </v-toolbar>
                 </div>
                 <div>
@@ -23,7 +23,7 @@
                       <v-icon>add_shopping_cart</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
-                    <span class="headline">3000</span>
+                    <span class="headline">{{ quotations }}</span>
                   </v-toolbar>
                 </div>
               </v-layout>
@@ -52,12 +52,15 @@
     name: 'dashboard',
     data () {
       return {
-        success: false
+        success: false,
+        products: null,
+        quotations: null
       }
     },
 
     created(){
       this.getCharts()
+      this.getTotalProductsQuotaions()
     },
 
     methods: {
@@ -110,6 +113,16 @@
               "dataProvider": response.data.data
             })
             this.success = response.data.success
+          }
+        })
+      },
+
+     getTotalProductsQuotaions() {
+        axios.get('/api/total-products')
+        .then(response => {
+          if (response.data.success) {
+            this.products = response.data.data.products
+            this.quotations = response.data.data.quotations
           }
         })
       }

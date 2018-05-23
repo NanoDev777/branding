@@ -318,7 +318,7 @@
         .then((response) => {
           this.loading = false
           this.$router.push('/products')
-          this.$snotify.success(response.data.message, 'Felicidades')
+          this.$snotify.simple(response.data.message, 'Felicidades')
         })
         .catch((error) => {
           this.loading = false

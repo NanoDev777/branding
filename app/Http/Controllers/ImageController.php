@@ -13,7 +13,7 @@ class ImageController extends Controller
             if ($request->get('image')) {
                 $image = $request->get('image');
                 $name  = time() . '.' . explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
-                $path  = public_path('img/' . $name);
+                $path  = public_path('img/products/' . $name);
                 \Image::make($request->get('image'))->save($path);
 
                 $img = Image::create([
@@ -22,9 +22,13 @@ class ImageController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Inténtelo de nuevo más tarde'], 500);
+            return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['data' => $img], 201);
+        return response()->json([
+            'success' => true,
+            'data'    => $img,
+            'message' => message('MSG001'),
+        ], 201);
     }
 
     public function destroy($id)
@@ -33,8 +37,8 @@ class ImageController extends Controller
             $image = Image::find($id);
             $image->delete();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Inténtelo de nuevo más tarde'], 500);
+            return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['response' => 'Eliminada correctamente!'], 200);
+        return response()->json(['message' => message('MSG003')], 200);
     }
 }
