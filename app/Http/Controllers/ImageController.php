@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -34,11 +35,18 @@ class ImageController extends Controller
     public function destroy($id)
     {
         try {
-            $image = Image::find($id);
-            $image->delete();
+            $image   = Image::find($id);
+            $deleted = Storage::disk('public')->delete('img/products/' . $image->image);
+            if ($deleted) {
+                $image->delete();
+                return response()->json([
+                    'success' => true,
+                    'message' => message('MSG003'),
+                ], 200);
+            }
+            throw new \Exception();
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG003')], 200);
     }
 }

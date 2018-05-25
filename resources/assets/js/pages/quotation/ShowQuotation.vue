@@ -17,7 +17,7 @@
                       <v-list-tile avatar>
                         <v-list-tile-content>
                           <v-list-tile-title>Fecha de Emisión</v-list-tile-title>
-                          <v-list-tile-sub-title>{{ registro | formatDate('l') }}</v-list-tile-sub-title>
+                          <v-list-tile-sub-title>{{ registro | formatDate('DD/MM/YYYY') }}</v-list-tile-sub-title>
                         </v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile avatar>
@@ -67,6 +67,8 @@
                         <td>{{ props.item.code }}</td>
                         <td class="text-xs-left">{{ props.item.name }}</td>
                         <td class="text-xs-left">{{ props.item.pivot.quantity }}</td>
+                        <td class="text-xs-left">{{ props.item.pivot.total | currency}}</td>
+                        <td class="text-xs-left">{{ props.item.pivot.quantity * props.item.pivot.total | currency }}</td>
                       </tr>
                     </template>
                     <template slot="expand" slot-scope="props">
@@ -105,7 +107,9 @@
             value: 'name'
           },
           { text: 'Nombre', value: 'nombre' },
-          { text: 'Cantidad', value: 'cantidad' }
+          { text: 'Cantidad', value: 'cantidad' },
+          { text: 'Precio Unitario', value: 'unitario' },
+          { text: 'Total', value: 'total' }
         ]
       }
     },

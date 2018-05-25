@@ -61,9 +61,12 @@ class CategoryController extends Controller
                 'description' => $request->description,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['message' => message('MSG011')], 500);
+            return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG001')], 200);
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG001'),
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -76,7 +79,10 @@ class CategoryController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG002')], 200);
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG002'),
+        ], 200);
     }
 
     public function destroy($id)
@@ -87,11 +93,21 @@ class CategoryController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG003')], 200);
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG003'),
+        ], 200);
     }
 
     function list() {
-        $categories = Category::orderBy('id', 'DESC')->get();
-        return response()->json(['data' => $categories], 200);
+        try {
+            $categories = Category::orderBy('id', 'DESC')->select('id', 'name')->get();
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+        return response()->json([
+            'success' => true,
+            'list'    => $categories,
+        ], 200);
     }
 }

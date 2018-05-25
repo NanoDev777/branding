@@ -5,18 +5,18 @@ import Dashboard from '../pages/dashboard/Dashboard.vue'
 //products
 import ListProducts from '../pages/products/ListProducts.vue'
 import ShowProduct from '../pages/products/ShowProduct.vue'
-import CreateProduct from '../pages/products/CreateProduct.vue'
-import EditProduct from '../pages/products/EditProduct.vue'
+import FormProduct from '../pages/products/FormProduct.vue'
+//import EditProduct from '../pages/products/EditProduct.vue'
 
 //categories
 import ListCategories from '../pages/category/ListCategories.vue'
-import CreateCategory from '../pages/category/CreateCategory.vue'
-import EditCategory from '../pages/category/EditCategory.vue'
+import FormCategory from '../pages/category/FormCategory.vue'
+//import EditCategory from '../pages/category/EditCategory.vue'
 
 //prices
 import ListPrices from '../pages/price/ListPrices.vue'
-import CreatePrice from '../pages/price/CreatePrice.vue'
-import EditPrice from '../pages/price/EditPrice.vue'
+import FormPrice from '../pages/price/FormPrice.vue'
+//import EditPrice from '../pages/price/EditPrice.vue'
 
 //costs
 import Costs from '../pages/costs/Costs.vue'
@@ -64,7 +64,7 @@ export default [
           {
             path: 'create',
             name: 'CreateProduct',
-            component: CreateProduct
+            component: FormProduct
           },
           {
             path: ':id',
@@ -75,8 +75,7 @@ export default [
           {
             path: ':id/edit',
             name: 'EditProduct',
-            component: EditProduct,
-            props: true
+            component: FormProduct
           }
         ]
       },
@@ -96,14 +95,12 @@ export default [
           {
             path: 'create',
             name: 'CreateCategory',
-            component: CreateCategory,
-            props: true
+            component: FormCategory
           },
           {
             path: ':id/edit',
             name: 'EditCategory',
-            component: EditCategory,
-            props: true
+            component: FormCategory
           }
         ]
       },
@@ -123,14 +120,12 @@ export default [
           {
             path: 'create',
             name: 'CreatePrice',
-            component: CreatePrice,
-            props: true
+            component: FormPrice
           },
           {
             path: ':id/edit',
             name: 'EditPrice',
-            component: EditPrice,
-            props: true
+            component: FormPrice
           }
         ]
       },

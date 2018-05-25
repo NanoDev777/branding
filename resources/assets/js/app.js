@@ -9,7 +9,6 @@ import store from './store'
 import AmCharts from 'amcharts3'
 import AmSerial from 'amcharts3/amcharts/serial'
 
-
 const options = {
   toast: {
     timeout: 4000,
@@ -24,6 +23,7 @@ Vue.use(Snotify, options)
 Vue.use(Vuetify)
 Vue.use(VeeValidate)
 Vue.filter('formatDate', require('./filters/formatDate'));
+Vue.filter('currency', require('./filters/currency'));
 
 const app = new Vue({
     el: '#app',

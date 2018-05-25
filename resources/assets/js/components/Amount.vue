@@ -8,15 +8,23 @@
             <v-flex xs12 sm12 md6 lg5>
               <v-text-field
                 label="Cantidad"
+                v-model="form.quantity"
+                data-vv-name="quantity"
+                v-validate="'required|numeric'"
+                :error-messages="errors.collect('quantity')"
               ></v-text-field>
             </v-flex>
             <v-flex xs12 sm12 md6 lg5>
               <v-text-field
                 label="Precio"
+                v-model="form.price"
+                data-vv-name="price"
+                v-validate="'required|decimal:2'"
+                :error-messages="errors.collect('price')"
               ></v-text-field>
             </v-flex>
             <v-flex xs12 sm12 md2 lg2>
-              <v-btn>
+              <v-btn :loading="loading" @click="save">
                 Guardar
               </v-btn>
             </v-flex>
@@ -58,15 +66,29 @@
                   ></v-text-field>
                 </v-edit-dialog>
               </td>
-              <td class="text-xs-left">{{ props.item.quantity + 2 }}</td>
+              <td class="text-xs-left">{{ props.item.created_at | formatDate('DD/MM/YYYY') }}</td>
+              <td class="text-xs-left">{{ props.item.updated_at | formatDate('DD/MM/YYYY') }}</td>
               <td>
-                <v-btn :loading="props.item.loader" flat icon color="blue" @click="update(props.item)">
+                <v-btn 
+                  :disabled="props.item.delete" 
+                  :loading="props.item.update" 
+                  flat icon color="blue"
+                  @click="update(props.item)"
+                >
                   <v-icon>edit</v-icon>
                 </v-btn>
-                <v-btn flat icon color="red">
+                <v-btn 
+                  :disabled="props.item.update" 
+                  :loading="props.item.delete"
+                  flat icon color="red"
+                  @click="deleted(props.item)"
+                >
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+            </template>
+            <template slot="no-data">
+              <center>Sin Resultados</center>
             </template>
           </v-data-table>
         </v-flex>
@@ -76,17 +98,22 @@
 </template>
 
 <script>
-  export default {
-    name: 'amount',
-    props: {
-      amounts: {
-        required: true,
-        type: Array
-      }
-    },
+  import { mapGetters } from 'vuex'
 
+  export default {
+    $_veeValidate: {
+      validator: 'new'
+    },
+    name: 'amount',
+    props: ['product'],
     data () {
       return {
+        form: {
+          quantity: null,
+          price: null,
+          product: this.product
+        },
+        loading: false,
         headers: [
           {
             text: 'Cantidad',
@@ -95,28 +122,88 @@
             value: 'cantidad'
           },
           { text: 'Precio', value: 'precio' },
-          { text: 'Precio Bs.', value: 'presiob' },
+          { text: 'Registrado', value: 'registrado' },
+          { text: 'Actualizado', value: 'actualizado' },
           { text: 'Acción', value: 'accion' }
-        ]
+        ],
+        dictionary: {
+          custom: {
+            quantity: {
+              required: () => 'Este campo es requerido',
+              numeric: 'Este campo solo puede contener números enteros'
+            },
+            price: {
+              required: () => 'Este campo es requerido',
+              decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            }
+          }
+        }
       }
+    },
+
+    computed: {
+      ...mapGetters([
+        'amounts'
+      ])
+    },
+
+    mounted () {
+      this.$validator.localize('en', this.dictionary)
     },
 
     methods: {
       save() {
-
+        this.$validator.validateAll().then((result) => {
+          if (result) {
+            this.loading = true
+            axios.post('/api/create-amount', this.form)
+            .then((response) => {
+              if (response.data.success) {
+                let amount = response.data.data
+                amount["update"] = false
+                amount["delete"] = false
+                this.$store.dispatch('addAmount', amount)
+                this.$snotify.simple(response.data.message, 'Felicidades')
+              }
+              this.loading = false
+            })
+            .catch((error) => {
+              this.loading = false
+            })
+          }
+        })
       },
 
       update(item) {
-        console.log(item)
-        item.loader = true
+        item.update = true
         axios.put(`/api/amount/${item.id}`, item)
         .then((response) => {
-          item.loader = false
-          this.$snotify.simple(response.data.message, 'Felicidades')
+          if (response.data.success) {
+            this.$store.dispatch('updateAmount', item)
+            this.$snotify.simple(response.data.message, 'Felicidades')
+            item.update = false
+          }
         })
         .catch((error) => {
-          item.loader = false
+          item.update = false
         })
+      },
+
+      deleted(item) {
+        let r = confirm('Realmente desea eliminar el registro?')
+        if (r) {
+          item.delete = true
+          this.$store.dispatch('deleteAmount', item.id)
+          .then((response) => {
+            if (response.data.success) {
+              this.$snotify.simple(response.data.message, 'Felicidades')
+              item.delete = false
+            }
+          })
+          .catch((error) => {
+            item.delete = false
+          })
+        }
       }
     }
   }

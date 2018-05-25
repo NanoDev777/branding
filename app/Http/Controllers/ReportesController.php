@@ -75,6 +75,8 @@ class ReportesController extends Controller
             $pdf->SetFillColor(250, 250, 242);
             $txt = "La Paz: Pedro Blanco Esq. Nicolas Acosta Nº 1471\nTeléf - Fax:  (591) 2004313 - 78978762\nSanta Cruz: Av 2 de Agosto calle 6 lado capilla\nTeléf - Cel:  (591) 3494677 - 76722731";
             $pdf->MultiCell(115, 5, $txt, 1, 'L', 1, 0, '', '', true);
+            $pdf->SetFont('times', '', 10);
+            $pdf->MultiCell(90, 1, 'www.brandingbolivia.com', 1, 'C', 1, 0, 82, 29, true);
         });
 
         PDF::setFooterCallback(function ($pdf) {
@@ -127,13 +129,13 @@ class ReportesController extends Controller
                 ->select('products.code', 'products.name', 'products.description', 'products.width', 'products.height', 'products.thickness', 'products.weight', 'images.image', DB::raw("{$value['quantity']} as quantity"), DB::raw("{$total} as unitary"))
                 ->first();
             $array[$key]              = $name;
-            $productsId[$value['id']] = ['quantity' => $value['quantity']];
+            $productsId[$value['id']] = ['quantity' => $value['quantity'], 'total' => $total];
         }
 
         $count     = Quotation::count() + 1;
         $quotation = ['cite' => $count, 'customer' => $detailsData['customer'], 'total' => 10000, 'products' => $productsId];
-        $query     = $this->quotation->saveQuotation($quotation);
-        if ($query) {
+        //$query     = $this->quotation->saveQuotation($quotation);
+        if (true) {
             $details = '';
             $details .= '<style type=text/css>';
             $details .= 'table {border:1px black solid; font-family: dejavusans;  border-spacing: 5px;}';
@@ -161,7 +163,7 @@ class ReportesController extends Controller
                 PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '30', $cite, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
                 $date = "<b>" . date('d-m-Y') . "</b>";
                 PDF::writeHTMLCell($w = 189, $h = 0, $x = '175', $y = '30', $date, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
-                PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '35', $details, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+                PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '37', $details, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
                 PDF::SetFillColor(255, 253, 153);
                 PDF::MultiCell(187, 7, 'COTIZACIÓN', 1, 'C', 1, 2, 11, 69, true);
 
@@ -182,7 +184,7 @@ class ReportesController extends Controller
                 $product .= "<tr><td>" . $array[$a]->description . "</td></tr>";
                 $product .= "<tr><td><b>Dimensiones: </b> " . $array[$a]->width . " cm / " . $array[$a]->height . " cm / " . $array[$a]->thickness . " cm | " . $array[$a]->weight . " gr</td></tr>";
                 $product .= "<tr><td><b>Cantidad: </b> " . $array[$a]->quantity . "</td></tr>";
-                $product .= "<tr><td><b>Precio Unitario: </b>" . $array[$a]->unitary . " Bs. &nbsp; &nbsp; <b>Total: </b>" . round($array[$a]->quantity * $array[$a]->unitary, 2) . " Bs.</td></tr>";
+                $product .= "<tr><td><b>Precio Unitario: </b>" . number_format($array[$a]->unitary, 2, '.', ',') . " Bs. &nbsp; &nbsp; <b>Total: </b>" . number_format($array[$a]->quantity * $array[$a]->unitary, 2, '.', ',') . " Bs.</td></tr>";
                 $product .= "</table>";
                 PDF::writeHTMLCell($w = 99, $h = 0, $x = '100', $y = '77', $product, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
 
@@ -203,7 +205,7 @@ class ReportesController extends Controller
                     $product2 .= "<tr><td>" . $array[$b]->description . "</td></tr>";
                     $product2 .= "<tr><td><b>Dimensiones: </b> " . $array[$b]->width . " cm / " . $array[$b]->height . " cm / " . $array[$b]->thickness . " cm | " . $array[$b]->weight . " gr</td></tr>";
                     $product2 .= "<tr><td><b>Cantidad: </b> " . $array[$b]->quantity . "</td></tr>";
-                    $product2 .= "<tr><td><b>Precio Unitario: </b>" . $array[$b]->unitary . " Bs. &nbsp; &nbsp; <b>Total: </b>" . round($array[$b]->quantity * $array[$b]->unitary, 2) . " Bs.</td></tr>";
+                    $product2 .= "<tr><td><b>Precio Unitario: </b>" . number_format($array[$b]->unitary, 2, '.', ',') . " Bs. &nbsp; &nbsp; <b>Total: </b>" . number_format($array[$b]->quantity * $array[$b]->unitary, 2, '.', ',') . " Bs.</td></tr>";
                     $product2 .= "</table>";
                     PDF::writeHTMLCell($w = 99, $h = 0, $x = '100', $y = '162', $product2, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
                 }

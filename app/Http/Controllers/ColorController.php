@@ -9,24 +9,26 @@ class ColorController extends Controller
 {
     public function index()
     {
-        $colors = Color::orderBy('id', 'DESC')->get();
-        if (is_null($colors)) {
-            return response()->json(['message' => message('MSG011')], 404);
-        } else {
-            return response()->json(['data' => $colors], 200);
+        try {
+            $colors = Color::orderBy('id', 'DESC')->get();
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
         }
-
+        return response()->json([
+            'success' => true,
+            'data'    => $colors,
+        ], 200);
     }
 
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-        ]);
-
-        $color = Color::create([
-            'name' => $request->name,
-        ]);
+        try {
+            $color = Color::create([
+                'name' => $request->name,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
         return response()->json([
             'success' => true,
             'data'    => $color,

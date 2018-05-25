@@ -23,28 +23,36 @@
                             <v-text-field
                               label="T/C BS"
                               v-model="cost.chilean"
-                              required
+                              data-vv-name="chilean"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('chilean')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="T/C $U$"
+                              label="T/C SUS"
                               v-model="cost.dollar"
-                              required
+                              data-vv-name="dollar"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('dollar')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
                               label="Dólar Compra"
                               v-model="cost.purchase"
-                              required
+                              data-vv-name="purchase"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('purchase')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
                               label="Dólar venta"
                               v-model="cost.sale"
-                              required
+                              data-vv-name="sale"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('sale')"
                             ></v-text-field>
                           </v-flex>
                         </v-layout>
@@ -57,28 +65,36 @@
                             <v-text-field
                               label="Transferencia"
                               v-model="cost.transfer"
-                              required
+                              data-vv-name="transfer"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('transfer')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
                               label="Importe"
                               v-model="cost.amount"
-                              required
+                              data-vv-name="amount"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('amount')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
                               label="Transporte"
                               v-model="cost.transport"
-                              required
+                              data-vv-name="transport"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('transport')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
                               label="IVA"
                               v-model="cost.iva"
-                              required
+                              data-vv-name="iva"
+                              v-validate="'required|decimal:2'"
+                              :error-messages="errors.collect('iva')"
                             ></v-text-field>
                           </v-flex>
                         </v-layout>
@@ -110,15 +126,58 @@
   import Cost from '../../class/costs/Cost'
 
   export default {
+    $_veeValidate: {
+      validator: 'new'
+    },
     name: 'costs',
     data: () => ({
       success: false,
       loading: false,
-      cost: new Cost()
+      cost: new Cost(),
+      dictionary: {
+        custom: {
+          chilean: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          dollar: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          purchase: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          sale: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          transfer: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          amount: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          transport: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          },
+          iva: {
+            required: () => 'Este campo es requerido',
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+          }
+        }
+      }
     }),
 
     created() {
       this.showCosts()
+    },
+
+    mounted () {
+      this.$validator.localize('en', this.dictionary)
     },
 
     methods: {
@@ -133,17 +192,21 @@
       },
 
       updateCosts() {
-      	this.loading = true
-      	axios.put(`/api/cost/${this.cost.id}`, this.cost)
-	    .then((response) => {
-	      if (response.data.success) {
-	      	this.loading = false
-	        this.$snotify.simple(response.data.message, 'Felicidades')
-	      }
-	    })
-	    .catch((error) => {
-	      this.loading = false
-	    })
+        this.$validator.validateAll().then((result) => {
+          if (result) {
+            this.loading = true
+            axios.put(`/api/cost/${this.cost.id}`, this.cost)
+            .then((response) => {
+              if (response.data.success) {
+                this.loading = false
+                this.$snotify.simple(response.data.message, 'Felicidades')
+              }
+            })
+            .catch((error) => {
+              this.loading = false
+            })
+          }
+        })
       },
 
       reset () {

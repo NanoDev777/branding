@@ -11,6 +11,6 @@ class ActionController extends Controller
         $actions = Action::orderBy('order')->pluck('name', 'id');
         return response()->json([
             'list' => $actions,
-        ]);
+        ], 200);
     }
 }

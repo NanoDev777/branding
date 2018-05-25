@@ -11,13 +11,18 @@ class AmountController extends Controller
     {
         try {
             $amount = Amount::create([
-                'quantity' => $request->quantity,
-                'price'    => $request->price,
+                'quantity'   => $request->quantity,
+                'price'      => $request->price,
+                'product_id' => $request->product,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['message' => message('MSG011')], 500);
+            return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG001')], 200);
+        return response()->json([
+            'success' => true,
+            'data'    => $amount,
+            'message' => message('MSG001'),
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -30,6 +35,24 @@ class AmountController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG002')], 201);
+        return response()->json([
+            'success' => true,
+            'data'    => $amount,
+            'message' => message('MSG002'),
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $amount = Amount::find($id);
+            $amount->delete();
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG003'),
+        ], 200);
     }
 }

@@ -14,6 +14,9 @@
                     <v-text-field
                       label="Descripcion"
                       v-model="profile.description"
+                      data-vv-name="description"
+                      v-validate="'required'"
+                      :error-messages="errors.collect('description')"
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -70,9 +73,11 @@
 <script>
   import ActionService from '../../class/action/ActionService'
   import Profile from '../../class/profile/Profile'
-  import Checkbox from '../../components/Checkbox.vue'
 
   export default {
+    $_veeValidate: {
+      validator: 'new'
+    },
     name: 'form-profile',
     data () {
       return {
@@ -81,14 +86,15 @@
         profile: new Profile(),
         actions: [],
         id: this.$route.params.id,
-        message: null,
-        status: null,
-        success: false
+        success: false,
+        dictionary: {
+          custom: {
+            description: {
+              required: () => 'Este campo es requerido'
+            }
+          }
+        }
       }
-    },
-
-    components: {
-      'checkbox' : Checkbox
     },
 
     computed: {
@@ -103,15 +109,19 @@
     created(){
       this.actions = new ActionService(axios.get('/api/actions'))
       this.actions.list()
-        .then(response => {
-          this.actions = response.list
-        })
+      .then(response => {
+        this.actions = response.list
+      })  
 
       if (this.id) {
         this.showPerfil()
       }else{
         this.success = true
       }
+    },
+
+    mounted () {
+      this.$validator.localize('en', this.dictionary)
     },
 
     methods: {
@@ -126,22 +136,26 @@
       },
 
       save() {
-        this.loading = true
-        if(this.id) {
-          this._save = axios.put(`/api/profile/${this.id}`, this.profile)
-        } else {
-          this._save = axios.post('/api/create-profile', this.profile)
-        }
-        this._save
-        .then(response => {
-          if(response.data.success) {
-            this.$router.push('/profiles')
-            this.$snotify.simple(response.data.message, 'Felicidades')
+        this.$validator.validateAll().then((result) => {
+          if (result) {
+            this.loading = true
+            if(this.id) {
+              this._save = axios.put(`/api/profile/${this.id}`, this.profile)
+            } else {
+              this._save = axios.post('/api/create-profile', this.profile)
+            }
+            this._save
+            .then(response => {
+              if(response.data.success) {
+                this.$router.push('/profiles')
+                this.$snotify.simple(response.data.message, 'Felicidades')
+              }
+              this.loading = false
+            })
+            .catch(error =>{
+              this.loading = false
+            })
           }
-          this.loading = false
-        })
-        .catch(error =>{
-          this.loading = false
         })
       }
     }

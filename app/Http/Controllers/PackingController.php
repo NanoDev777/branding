@@ -22,7 +22,11 @@ class PackingController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG002')], 200);
+        return response()->json([
+            'success' => true,
+            'data'    => $packing,
+            'message' => message('MSG001'),
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -42,6 +46,6 @@ class PackingController extends Controller
             'success' => true,
             'data'    => $packing,
             'message' => message('MSG002'),
-        ], 201);
+        ], 200);
     }
 }

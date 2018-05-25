@@ -15,10 +15,7 @@ export default new Vuex.Store({
   modules:{
     auth,
     products,
-    categories,
     colors,
-    quotations,
-    prices,
     message
   },
   plugins: [createPersistedState()]

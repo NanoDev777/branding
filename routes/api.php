@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     //Amount
     Route::post('create-amount', 'AmountController@store')->name('products.create');
     Route::put('amount/{id}', 'AmountController@update')->name('products.create');
+    Route::delete('amount/{id}', 'AmountController@destroy')->name('products.destroy');
 
     //Colors
     Route::get('colors', 'ColorController@index');
@@ -93,11 +94,8 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
 });
 
 Route::get('test', function () {
-    $prices = App\Price::orderBy('id', 'ASC')->select('id', 'quantity', 'logo', 'utility')->get();
-    $val    = [];
-    $c      = 0;
-    foreach ($prices as $key => $value) {
-        $var = $value;
-        echo json_encode($var->logo);
-    }
+    $categories = App\Category::orderBy('id', 'DESC')->select('id', 'name')->get();
+    return response()->json([
+        'list' => $categories,
+    ], 200);
 });

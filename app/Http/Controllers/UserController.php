@@ -56,13 +56,16 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $inputs = $request->all();
-        User::create($inputs);
+        try {
+            $inputs = $request->all();
+            User::create($inputs);
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
         return response()->json([
             'success' => true,
-            'status'  => 'positive',
             'message' => message('MSG001'),
-        ]);
+        ], 201);
     }
 
     public function authenticated()
@@ -87,6 +90,7 @@ class UserController extends Controller
         ];
         return response()->json($user);
     }
+
     public function logout(Request $request)
     {
         if (Cache::has('actions_' . $request->id)) {

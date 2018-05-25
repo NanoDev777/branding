@@ -63,9 +63,12 @@ class PriceController extends Controller
                 'utility'  => $request->utility,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['message' => message('MSG011')], 500);
+            return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG001')], 200);
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG001'),
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -79,7 +82,10 @@ class PriceController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG002')], 201);
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG002'),
+        ], 200);
     }
 
     public function destroy($id)
@@ -90,6 +96,9 @@ class PriceController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG003')], 200);
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG003'),
+        ], 200);
     }
 }

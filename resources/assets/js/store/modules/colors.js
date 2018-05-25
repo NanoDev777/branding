@@ -11,10 +11,6 @@ const mutations = {
 
   ADD_COLOR(state, color) {
     state.colors.unshift(color)
-  },
-
-  DELETE_COLOR(state, color) {
-    state.colors.splice(color, 1)
   }
 }
 
@@ -26,9 +22,6 @@ const actions = {
         commit('GET_COLORS', response.data.data)
         resolve()
       })
-      .catch((error) => {
-        reject('Intentelo de nuevo más tarde')
-      });
     }, error => console.log(error))
   },
 

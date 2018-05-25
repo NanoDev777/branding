@@ -75,7 +75,7 @@ class ProductController extends Controller
                 'height'      => $request->height,
                 'thickness'   => $request->thickness,
                 'weight'      => $request->weight,
-                'category_id' => $request->category,
+                'category_id' => $request->category_id,
             ]);
 
             $data = array();
@@ -95,7 +95,11 @@ class ProductController extends Controller
             DB::rollback();
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG001')], 201);
+        return response()->json([
+            'success' => true,
+            'id'      => $product->id,
+            'message' => message('MSG001'),
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -110,7 +114,7 @@ class ProductController extends Controller
             $product->height      = $request->height;
             $product->thickness   = $request->thickness;
             $product->weight      = $request->weight;
-            $product->category_id = $request->category;
+            $product->category_id = $request->category_id;
             $product->save();
 
             $data = array();
@@ -129,7 +133,11 @@ class ProductController extends Controller
             DB::rollback();
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json(['message' => message('MSG002')], 201);
+        return response()->json([
+            'success' => true,
+            'id'      => $product->id,
+            'message' => message('MSG002'),
+        ], 200);
     }
 
     public function destroy($id)

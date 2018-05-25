@@ -1,73 +1,82 @@
 import axios from 'axios'
+import Vue from 'vue'
 
 const state = {
-  products: []
+  amounts: [],
+  packing: null
 }
 
 const mutations = {
-  GET_PRODUCTS(state, products) {
-    state.products = products.reverse()
+  GET_AMOUNTS(state, amounts) {
+    state.amounts = amounts.reverse()
   },
 
-  ADD_PRODUCT(state, product) {
-    state.products.unshift(product)
+  ADD_AMOUNT(state, amount) {
+    state.amounts.unshift(amount)
   },
 
-  UPDATE_PRODUCT(state, product) {
-    const foundIndex = state.products.findIndex(x => x.id == product.id)
-    state.products[foundIndex] = product
+  UPDATE_AMOUNT(state, amount) {
+    const index = state.amounts.findIndex(x => x.id == amount.id)
+    Vue.set(state.amounts, index, amount)
   },
 
-  DELETE_PRODUCT(state, product) {
-    state.products.splice(product, 1)
-  }
+  DELETE_AMOUNT(state, amount) {
+    const index = state.amounts.findIndex(x => x.id == amount)
+    state.amounts.splice(index, 1)
+  },
+
+  GET_PACKING(state, packing) {
+    state.packing = packing
+  },
 }
 
 const actions = {
-  getProducts({commit}) {
+  getAmounts({commit}, amounts) {
     return new Promise((resolve, reject) => {
-      axios.get('/api/products')
-      .then((response) => {
-        commit('GET_PRODUCTS', response.data.data)
-        resolve()
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-    }, error => console.log(error))
-  },
-
-  addProduct({commit}, product) {
-    return new Promise((resolve, reject) => {
-      commit('ADD_PRODUCT', product)
+      commit('GET_AMOUNTS', amounts)
       resolve()
     }, error => console.log(error))
   },
 
-  updateProduct({commit}, product) {
+  addAmount({commit}, amount) {
     return new Promise((resolve, reject) => {
-      commit('UPDATE_PRODUCT', product)
+      commit('ADD_AMOUNT', amount)
       resolve()
     }, error => console.log(error))
   },
 
-  deleteProduct({commit}, product) {
+  updateAmount({commit}, amount) {
     return new Promise((resolve, reject) => {
-      axios.delete('/api/notes/'+product)
+      commit('UPDATE_AMOUNT', amount)
+      resolve()
+    }, error => console.log(error))
+  },
+
+  deleteAmount({commit}, amount) {
+    return new Promise((resolve, reject) => {
+      axios.delete('/api/amount/'+amount)
       .then((response) => {
-        commit('DELETE_PRODUCT', product)
+        commit('DELETE_AMOUNT', amount)
         resolve(response)
       })
-      .catch((error) => {
-        reject(error.response.data.error)
-      })
+    }, error => console.log(error))
+  },
+
+  getPacking({commit}, packing) {
+    return new Promise((resolve, reject) => {
+      commit('GET_PACKING', packing)
+      resolve()
     }, error => console.log(error))
   }
+
 }
 
 const getters = {
-  products: (state) => {
-    return state.products
+  amounts: (state) => {
+    return state.amounts
+  },
+  packing: (state) => {
+    return state.packing
   }
 }
 

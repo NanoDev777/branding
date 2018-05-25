@@ -58,6 +58,7 @@ class ProfileController extends Controller
             'message' => message('MSG001'),
         ], 201);
     }
+
     public function show($id)
     {
         $profile = Profile::with('actions')->find($id);
@@ -70,6 +71,7 @@ class ProfileController extends Controller
 
         return response()->json(['message' => message('MSG011')], 404);
     }
+
     public function update(Request $request, $id)
     {
         DB::beginTransaction();
@@ -88,6 +90,7 @@ class ProfileController extends Controller
             'message' => message('MSG002'),
         ], 201);
     }
+
     public function destroy($id)
     {
         try {
@@ -108,6 +111,7 @@ class ProfileController extends Controller
             ]);
         }
     }
+
     function list() {
         $profiles = DB::table('profiles')
             ->orderBy('id', 'desc')
@@ -117,6 +121,7 @@ class ProfileController extends Controller
             'list'    => $profiles,
         ]);
     }
+
     private function syncActions(Profile $profile, array $actions)
     {
         $profile->actions()->sync($actions);

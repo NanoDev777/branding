@@ -69,7 +69,7 @@ class QuotationController extends Controller
         if ($data) {
             return response()->json(['message' => message('MSG001')], 200);
         } else {
-            return response()->json(['message' => message('MSG011')], 500);
+            return response()->json(['message' => message('MSG010')], 500);
         }
     }
 }

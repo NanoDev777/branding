@@ -12,7 +12,11 @@ class Amount extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'quantity', 'price',
+        'quantity', 'price', 'product_id',
+    ];
+
+    protected $hidden = [
+        'product_id', 'deleted_at',
     ];
 
     public function product()
