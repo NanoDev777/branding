@@ -17,7 +17,7 @@ class PackingController extends Controller
                 'thickness'  => $request->thickness,
                 'weight'     => $request->weight,
                 'box'        => $request->box,
-                'product_id' => $request->product,
+                'product_id' => $request->product_id,
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);

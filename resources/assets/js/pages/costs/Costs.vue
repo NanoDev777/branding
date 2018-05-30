@@ -21,37 +21,37 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="T/C BS"
+                              label="T/C BS *"
                               v-model="cost.chilean"
                               data-vv-name="chilean"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('chilean')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="T/C SUS"
+                              label="T/C SUS *"
                               v-model="cost.dollar"
                               data-vv-name="dollar"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('dollar')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="Dólar Compra"
+                              label="Dólar Compra *"
                               v-model="cost.purchase"
                               data-vv-name="purchase"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('purchase')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="Dólar venta"
+                              label="Dólar venta *"
                               v-model="cost.sale"
                               data-vv-name="sale"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('sale')"
                             ></v-text-field>
                           </v-flex>
@@ -63,37 +63,37 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="Transferencia"
+                              label="Transferencia *"
                               v-model="cost.transfer"
                               data-vv-name="transfer"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('transfer')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="Importe"
+                              label="Importe *"
                               v-model="cost.amount"
                               data-vv-name="amount"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('amount')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="Transporte"
+                              label="Transporte *"
                               v-model="cost.transport"
                               data-vv-name="transport"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('transport')"
                             ></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md3 lg3>
                             <v-text-field
-                              label="IVA"
+                              label="IVA *"
                               v-model="cost.iva"
                               data-vv-name="iva"
-                              v-validate="'required|decimal:2'"
+                              v-validate="'required|decimal:2|max:30'"
                               :error-messages="errors.collect('iva')"
                             ></v-text-field>
                           </v-flex>
@@ -138,35 +138,43 @@
         custom: {
           chilean: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           dollar: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           purchase: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           sale: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           transfer: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           amount: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           transport: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           },
           iva: {
             required: () => 'Este campo es requerido',
-            decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+            decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+            max: 'Este campo debe tener un máximo de 8 caracteres'
           }
         }
       }
@@ -198,9 +206,9 @@
             axios.put(`/api/cost/${this.cost.id}`, this.cost)
             .then((response) => {
               if (response.data.success) {
-                this.loading = false
                 this.$snotify.simple(response.data.message, 'Felicidades')
               }
+              this.loading = false
             })
             .catch((error) => {
               this.loading = false

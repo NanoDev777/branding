@@ -77,7 +77,7 @@
           { text: 'Cite', value: 'cite' },
           { text: 'Cliente', value: 'cliente' },
           { text: 'Total/Monto', value: 'total' },
-          { text: 'Registrado', value: 'registrado' }
+          { text: 'Generado', value: 'generado' }
         ],
         items: [],
         totalItems: 0,

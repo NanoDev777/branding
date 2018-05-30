@@ -38,6 +38,7 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     Route::put('packing/{id}', 'PackingController@update')->name('products.create');
 
     //Amount
+    Route::get('amounts/{product}', 'AmountController@getAmounts')->name('products.show');
     Route::post('create-amount', 'AmountController@store')->name('products.create');
     Route::put('amount/{id}', 'AmountController@update')->name('products.create');
     Route::delete('amount/{id}', 'AmountController@destroy')->name('products.destroy');
@@ -86,6 +87,7 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     Route::get('user/{id}', 'UserController@show')->name('users.show');
     Route::post('create-user', 'UserController@store')->name('users.create');
     Route::put('user/{id}', 'UserController@update')->name('users.update');
+    Route::put('password/{id}', 'UserController@password')->name('users.update');
     Route::delete('user/{id}', 'UserController@destroy')->name('users.destroy');
 
     //Reports

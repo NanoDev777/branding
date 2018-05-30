@@ -12,7 +12,7 @@
                 <v-layout row wrap>
                   <v-flex xs12 sm12 md12 lg12>
                     <v-text-field
-                      label="Descripcion"
+                      label="Descripcion *"
                       v-model="profile.description"
                       data-vv-name="description"
                       v-validate="'required'"

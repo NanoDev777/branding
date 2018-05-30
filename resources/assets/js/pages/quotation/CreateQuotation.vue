@@ -122,6 +122,9 @@
                         </v-select>
                       </td>
                     </template>
+                    <template slot="no-data">
+                      <center>Sin Datos</center>
+                    </template>
                     <template slot="pageText" slot-scope="{ pageStart, pageStop }">
                       From {{ pageStart }} to {{ pageStop }}
                     </template>
@@ -198,10 +201,10 @@
           {text: 'Imagen', value: 'imagen'}
         ],
         form: {
-          customer: 'COFAR',
-          contact: 'Mikaela Cordero',
-          phone:'77078147',
-          adress:'Av. 2 de agosto'
+          customer: '',
+          contact: '',
+          phone:'',
+          adress:''
         },
         load: false
       }

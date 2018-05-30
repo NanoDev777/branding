@@ -67,6 +67,13 @@ class ProductController extends Controller
     {
         DB::beginTransaction();
         try {
+            $code = Product::where('code', $request->code)->get()->first();
+            if ($code) {
+                return response()->json([
+                    'success' => false,
+                    'message' => message('MSG013'),
+                ], 500);
+            }
             $product = Product::create([
                 'code'        => $request->code,
                 'name'        => $request->name,
@@ -97,7 +104,7 @@ class ProductController extends Controller
         }
         return response()->json([
             'success' => true,
-            'id'      => $product->id,
+            'id'      => 1,
             'message' => message('MSG001'),
         ], 201);
     }

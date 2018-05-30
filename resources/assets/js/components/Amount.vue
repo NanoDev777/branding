@@ -10,7 +10,7 @@
                 label="Cantidad"
                 v-model="form.quantity"
                 data-vv-name="quantity"
-                v-validate="'required|numeric'"
+                v-validate="'required|numeric|max:16'"
                 :error-messages="errors.collect('quantity')"
               ></v-text-field>
             </v-flex>
@@ -19,7 +19,7 @@
                 label="Precio"
                 v-model="form.price"
                 data-vv-name="price"
-                v-validate="'required|decimal:2'"
+                v-validate="'required|decimal:2|max:8'"
                 :error-messages="errors.collect('price')"
               ></v-text-field>
             </v-flex>
@@ -70,7 +70,6 @@
               <td class="text-xs-left">{{ props.item.updated_at | formatDate('DD/MM/YYYY') }}</td>
               <td>
                 <v-btn 
-                  :disabled="props.item.delete" 
                   :loading="props.item.update" 
                   flat icon color="blue"
                   @click="update(props.item)"
@@ -78,7 +77,6 @@
                   <v-icon>edit</v-icon>
                 </v-btn>
                 <v-btn 
-                  :disabled="props.item.update" 
                   :loading="props.item.delete"
                   flat icon color="red"
                   @click="deleted(props.item)"
@@ -98,22 +96,25 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
-
   export default {
     $_veeValidate: {
       validator: 'new'
     },
     name: 'amount',
-    props: ['product'],
+    props: {
+      product: {
+        required: true
+      }
+    },
     data () {
       return {
         form: {
           quantity: null,
           price: null,
-          product: this.product
+          product_id: this.product
         },
         loading: false,
+        amounts:[],
         headers: [
           {
             text: 'Cantidad',
@@ -130,21 +131,21 @@
           custom: {
             quantity: {
               required: () => 'Este campo es requerido',
-              numeric: 'Este campo solo puede contener números enteros'
+              numeric: 'Este campo solo puede contener números enteros',
+              max: 'Este campo debe tener un máximo de 16 caracteres'
             },
             price: {
               required: () => 'Este campo es requerido',
-              decimal: 'El campo debe ser numérico y puede contener 2 decimales'
+              decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+              max: 'Este campo debe tener un máximo de 8 caracteres'
             }
           }
         }
       }
     },
 
-    computed: {
-      ...mapGetters([
-        'amounts'
-      ])
+    created() {
+      this.get()
     },
 
     mounted () {
@@ -152,6 +153,19 @@
     },
 
     methods: {
+      get() {
+        axios.get('/api/amounts/' + this.product)
+        .then(response => {
+          let amounts = response.data.data.map((obj) => { 
+            let rObj = obj
+            rObj['update'] = false
+            rObj['delete'] = false
+            return rObj
+          })
+          this.amounts = amounts
+        })
+      },
+
       save() {
         this.$validator.validateAll().then((result) => {
           if (result) {
@@ -162,7 +176,7 @@
                 let amount = response.data.data
                 amount["update"] = false
                 amount["delete"] = false
-                this.$store.dispatch('addAmount', amount)
+                this.amounts.unshift(amount)
                 this.$snotify.simple(response.data.message, 'Felicidades')
               }
               this.loading = false
@@ -179,10 +193,9 @@
         axios.put(`/api/amount/${item.id}`, item)
         .then((response) => {
           if (response.data.success) {
-            this.$store.dispatch('updateAmount', item)
             this.$snotify.simple(response.data.message, 'Felicidades')
-            item.update = false
           }
+          item.update = false
         })
         .catch((error) => {
           item.update = false
@@ -193,12 +206,14 @@
         let r = confirm('Realmente desea eliminar el registro?')
         if (r) {
           item.delete = true
-          this.$store.dispatch('deleteAmount', item.id)
+          axios.delete('/api/amount/'+item.id)
           .then((response) => {
             if (response.data.success) {
+              let index = this.amounts.findIndex(x => x.id == item.id)
+              this.amounts.splice(index, 1)
               this.$snotify.simple(response.data.message, 'Felicidades')
-              item.delete = false
             }
+            item.delete = false
           })
           .catch((error) => {
             item.delete = false

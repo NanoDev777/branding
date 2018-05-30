@@ -2,35 +2,36 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Psr\Http\Message\ServerRequestInterface;
+use App\User;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Passport\Http\Controllers\AccessTokenController;
-use App\User;
+use Psr\Http\Message\ServerRequestInterface;
 
 class CustomAccessTokenController extends AccessTokenController
 {
-	public function issueUserToken(ServerRequestInterface $request) {   
+    public function issueUserToken(ServerRequestInterface $request)
+    {
         $httpRequest = request();
-        if($httpRequest->grant_type == 'password') {
+        if ($httpRequest->grant_type == 'password') {
             $user = User::where('email', $httpRequest->username)
                 ->where('active', 1)
                 ->first();
-            if($user == NULL) {
+            if ($user == null) {
                 return response()->json([
-                    'status' => 'negative',
-                    'message' => message('MSG012')
+                    'status'  => 'negative',
+                    'message' => message('MSG012'),
                 ]);
             }
             foreach ($user->profile->actions as $action) {
-                if(strpos($action->method, '|') !== false) {
-                    $pipe = explode('|', $action->method);
+                if (strpos($action->method, '|') !== false) {
+                    $pipe      = explode('|', $action->method);
                     $actions[] = $pipe[0];
                     $actions[] = $pipe[1];
                 } else {
                     $actions[] = $action->method;
                 }
             }
-            Cache::add('actions_' .  $user->id, $actions, 120);
+            Cache::add('actions_' . $user->id, $actions, 120);
             return $this->issueToken($request);
         }
     }

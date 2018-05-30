@@ -7,13 +7,28 @@ use Illuminate\Http\Request;
 
 class AmountController extends Controller
 {
+    public function getAmounts($product)
+    {
+        try {
+            $amounts = Amount::orderBy('id', 'DESC')
+                ->where('product_id', $product)
+                ->get();
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+        return response()->json([
+            'success' => true,
+            'data'    => $amounts,
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         try {
             $amount = Amount::create([
                 'quantity'   => $request->quantity,
                 'price'      => $request->price,
-                'product_id' => $request->product,
+                'product_id' => $request->product_id,
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);

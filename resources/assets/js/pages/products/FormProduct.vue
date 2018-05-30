@@ -18,7 +18,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md6 lg6>
                             <v-text-field
-                              label="Código"
+                              label="Código *"
                               v-model="product.code"
                               data-vv-name="code"
                               v-validate="'required|max:30'"
@@ -27,7 +27,7 @@
                           </v-flex>
                           <v-flex xs12 sm12 md6 lg6>
                             <v-text-field
-                              label="Nombre"
+                              label="Nombre *"
                               v-model="product.name"
                               data-vv-name="name"
                               v-validate="'required|max:120'"
@@ -38,7 +38,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md12 lg12>
                             <v-text-field
-                              label="Descripción"
+                              label="Descripción *"
                               v-model="product.description"
                               multi-line
                               data-vv-name="description"
@@ -50,7 +50,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md4 lg4>
                             <v-text-field
-                              label="Anchura"
+                              label="Anchura *"
                               v-model="product.width"
                               placeholder="0.00"
                               data-vv-name="width"
@@ -60,7 +60,7 @@
                           </v-flex>
                           <v-flex xs12 sm12 md4 lg4>
                             <v-text-field
-                              label="Altura"
+                              label="Altura *"
                               v-model="product.height"
                               placeholder="0.00"
                               data-vv-name="height"
@@ -70,7 +70,7 @@
                           </v-flex>
                           <v-flex xs12 sm12 md4 lg4>
                             <v-text-field
-                              label="Grosor"
+                              label="Grosor *"
                               v-model="product.thickness"
                               placeholder="0.00"
                               data-vv-name="thickness"
@@ -82,7 +82,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md4 lg4>
                             <v-text-field
-                              label="Peso"
+                              label="Peso *"
                               v-model="product.weight"
                               placeholder="0.00"
                               data-vv-name="weight"
@@ -99,7 +99,7 @@
                             <v-select
                               :items="categories"
                               v-model="product.category_id"
-                              label="Categoría"
+                              label="Categoría *"
                               item-text="name"
                               item-value="id"
                               single-line
@@ -110,7 +110,7 @@
                           </v-flex>
                           <v-flex xs12>
                             <v-select
-                              label="Colores*"
+                              label="Colores *"
                               :items="colors"
                               v-model="select"
                               multiple

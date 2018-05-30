@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -66,6 +67,63 @@ class UserController extends Controller
             'success' => true,
             'message' => message('MSG001'),
         ], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $inputs = $request->all();
+            $user   = User::find($id);
+            $user->update($inputs);
+            return response()->json([
+                'success' => true,
+                'message' => message('MSG002'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+    }
+
+    public function password(Request $request, $id)
+    {
+        try {
+            $inputs = $request->all();
+            $query  = User::where('id', $id);
+            $user   = User::find($id);
+            if (Hash::check($inputs['pass'], $user->password)) {
+                if (isset($inputs['password'])) {
+                    $inputs['password'] = bcrypt($inputs['password']);
+                }
+                $query->update(['password' => $inputs['password']]);
+                return response()->json([
+                    'success' => true,
+                    'message' => message('MSG002'),
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $user = User::find($id);
+            $user->delete();
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => message('MSG005 '),
+            ]);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG003'),
+        ], 200);
     }
 
     public function authenticated()

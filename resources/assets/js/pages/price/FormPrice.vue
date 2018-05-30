@@ -16,7 +16,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md12 lg12>
                             <v-text-field
-                              label="Cantidad"
+                              label="Cantidad *"
                               v-model="price.quantity"
                               data-vv-name="quantity"
                               v-validate="'required|decimal:2|max:8'"
@@ -27,7 +27,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md12 lg12>
                             <v-text-field
-                              label="Logo"
+                              label="Logo *"
                               v-model="price.logo"
                               data-vv-name="logo"
                               v-validate="'required|decimal:2|max:8'"
@@ -38,7 +38,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md12 lg12>
                             <v-text-field
-                              label="Utilidad"
+                              label="Utilidad *"
                               v-model="price.utility"
                               data-vv-name="utility"
                               v-validate="'required|decimal:2|max:8'"

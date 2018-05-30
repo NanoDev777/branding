@@ -16,7 +16,7 @@
                         <v-layout row wrap>
                           <v-flex xs12 sm12 md12 lg12>
                             <v-text-field
-                              label="Nombre"
+                              label="Nombre *"
                               v-model="category.name"
                               data-vv-name="name"
                               v-validate="'required|max:120'"

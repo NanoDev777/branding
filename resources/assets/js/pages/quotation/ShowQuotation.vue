@@ -71,11 +71,11 @@
                         <td class="text-xs-left">{{ props.item.pivot.quantity * props.item.pivot.total | currency }}</td>
                       </tr>
                     </template>
-                    <template slot="expand" slot-scope="props">
+                    <!--<template slot="expand" slot-scope="props">
                       <v-card flat>
                         <v-card-text>Peek-a-boo!</v-card-text>
                       </v-card>
-                    </template>
+                    </template>-->s
                   </v-data-table>
                 </v-card>
               </v-flex>

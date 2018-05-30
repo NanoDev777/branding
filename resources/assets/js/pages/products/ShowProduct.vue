@@ -43,7 +43,6 @@
                       <v-card>
                         <b>CÓDIGO: {{ product.code }}</b>
                       </v-card>
-                      <pre>{{ $data }}</pre>
                     </v-flex>
                   <v-spacer></v-spacer>
                   <v-flex xs12 sm12 md6 lg6>
@@ -58,7 +57,7 @@
                             <div><span>{{ product.height }} / {{ product.width }} / {{ product.thickness }} cm | {{ product.weight }} gr.</span></div>
                             <br>
                             <div><span class="grey--text">Especificaciones Embalaje</span></div>
-                            <div v-if="packing !== null">
+                            <div>
                               <span>{{ packing.height }} / {{ packing.width }} / {{ packing.thickness }} cm | {{ packing.weight }} kg.</span>
                               <v-icon title="Medidas">archive</v-icon><span>{{ packing.box }}</span>
                             </div>
@@ -108,7 +107,7 @@
                 <v-container fluid>
                   <v-layout>
                     <v-flex xs12 sm12 md12 lg12>
-                      <packing :product="id"></packing>
+                      <packing :list="packing" v-on:data-received='getPacking'></packing>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -117,7 +116,7 @@
                 <v-container fluid>
                   <v-layout>
                     <v-flex xs12 sm12 md12 lg12>
-                      <file-input :product="id" v-on:data-received='handler'></file-input>
+                      <file-input :product="id" v-on:data-received='getImage'></file-input>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -131,7 +130,6 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
   import Product from '../../class/product/Product'
   import FileInput from '../../components/FileInput.vue'
   import Amount from '../../components/Amount.vue'
@@ -155,6 +153,14 @@
         product: new Product(),
         colors: [],
         images: [],
+        packing: {
+          width: 0,
+          height: 0,
+          thickness: 0,
+          weight: 0,
+          box: '',
+          product_id: parseInt(this.id)
+        },
         headerColor: [
           {
             text: 'Color',
@@ -165,12 +171,6 @@
           { text: 'Talla', value: 'talla', align: 'left' }
         ]
       }
-    },
-
-    computed: {
-      ...mapGetters([
-        'packing'
-      ])
     },
 
     created() {
@@ -208,14 +208,9 @@
           if (response.data.success) {
             this.product = response.data.data
             this.images = response.data.data.images.map(({id, image}) => ({id, image}))
-            let amounts = response.data.data.amounts.map((obj) => { 
-              let rObj = obj
-              rObj['update'] = false
-              rObj['delete'] = false
-              return rObj
-            })
-            this.$store.dispatch('getAmounts', amounts)
-            this.$store.dispatch('getPacking', response.data.data.packing)
+            if (response.data.data.packing) {
+              this.packing = response.data.data.packing
+            }
             let colors = response.data.data.colors
             this.colors = colors.map((obj) => { 
               let rObj = {}
@@ -223,16 +218,20 @@
               rObj['size'] = obj.pivot['size']
               return rObj
             })
-            this.success = response.data.success
+            this.success = true
           }
         })
       },
 
-      handler(data) {
+      getImage(data) {
         delete data.updated_at
         delete data.created_at
         delete data.product_id
         this.images.unshift(data)
+      },
+
+      getPacking(data) {
+        this.packing = Object.assign({}, data)
       }
     }
   } 

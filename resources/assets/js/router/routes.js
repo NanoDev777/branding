@@ -28,8 +28,9 @@ import ShowQuotation from '../pages/quotation/ShowQuotation.vue'
 
 //users
 import ListUsers from '../pages/users/ListUsers.vue'
-import CreateUser from '../pages/users/CreateUser.vue'
-import EditUser from '../pages/users/EditUser.vue'
+import FormUser from '../pages/users/FormUser.vue'
+import Password from '../pages/users/Password.vue'
+//import EditUser from '../pages/users/EditUser.vue'
 
 //profiles
 import ListProfiles from '../pages/profile/ListProfiles.vue'
@@ -171,13 +172,18 @@ export default [
           {
             path: 'create',
             name: 'CreateUser',
-            component: CreateUser
+            component: FormUser
           },
           {
             path: ':id/edit',
             name: 'EditUser',
-            component: EditUser,
-            props: true
+            component: FormUser
+          }
+          ,
+          {
+            path: ':id/password',
+            name: 'Password',
+            component: Password
           }
         ]
       },
