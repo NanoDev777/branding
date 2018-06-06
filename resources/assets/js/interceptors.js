@@ -64,9 +64,13 @@ axios.interceptors.response.use(
     }
 
     if (error.response.status >= 500) {
+      let msj = error.response.data.message
+      if (!msj) {
+        msj = 'No es posible realizar esta acción, por favor inténtelo de nuevo más tarde.'
+      }
       store.dispatch('responseMessage', {
         type: 'error',
-        text: error.response.data.message,
+        text: msj,
         title: 'Error',
         modal: true
       })

@@ -40,7 +40,7 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     //Amount
     Route::get('amounts/{product}', 'AmountController@getAmounts')->name('products.show');
     Route::post('create-amount', 'AmountController@store')->name('products.create');
-    Route::put('amount/{id}', 'AmountController@update')->name('products.create');
+    Route::put('amount/{id}', 'AmountController@update')->name('products.update');
     Route::delete('amount/{id}', 'AmountController@destroy')->name('products.destroy');
 
     //Colors
@@ -69,6 +69,8 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     //Quotations
     Route::get('quotations', 'QuotationController@index')->name('quotations.index');
     Route::get('quotation/{id}', 'QuotationController@show')->name('quotations.show');
+    Route::put('quotation/{id}', 'QuotationController@update')->name('quotations.show'); //TODO
+    Route::put('cancel-quotation/{id}', 'QuotationController@destroy')->name('quotations.show'); //TODO
     Route::post('create-quotation', 'QuotationController@store')->name('quotations.create');
 
     //Profiles
@@ -92,12 +94,6 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
 
     //Reports
     Route::post('reporte', 'ReportesController@savePDF');
+    Route::get('detail-reporte/{id}', 'ReportesController@detailPDF');
     Route::post('delete', 'ReportesController@deletePDF');
-});
-
-Route::get('test', function () {
-    $categories = App\Category::orderBy('id', 'DESC')->select('id', 'name')->get();
-    return response()->json([
-        'list' => $categories,
-    ], 200);
 });

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateQuotationsTable extends Migration
 {
@@ -17,7 +17,11 @@ class CreateQuotationsTable extends Migration
             $table->increments('id');
             $table->integer('cite')->unsigned();
             $table->string('customer', 128);
-            $table->float('total', 9 , 2);
+            $table->string('contact', 128);
+            $table->string('phone', 32);
+            $table->string('address', 128);
+            $table->integer('term')->unsigned();
+            $table->tinyInteger('state')->default('0');
             $table->timestamps();
         });
     }

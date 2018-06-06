@@ -29,8 +29,7 @@ class QuotationController extends Controller
 
             $quotations = $quotations->where(function ($query) use ($filter) {
                 $query->where('cite', 'LIKE', "%" . $filter . "%")
-                    ->orWhere('customer', 'LIKE', "%" . $filter . "%")
-                    ->orWhere('total', 'LIKE', "%" . $filter . "%");
+                    ->orWhere('customer', 'LIKE', "%" . $filter . "%");
             });
         }
 
@@ -71,5 +70,39 @@ class QuotationController extends Controller
         } else {
             return response()->json(['message' => message('MSG010')], 500);
         }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $state = 0;
+        if ($request->state) {
+            $state = 1;
+        }
+        try {
+            $quotation        = Quotation::find($id);
+            $quotation->state = $state;
+            $quotation->save();
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => message('MSG002'),
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $quotation        = Quotation::find($id);
+            $quotation->state = 2;
+            $quotation->save();
+        } catch (\Exception $e) {
+            return response()->json(['message' => message('MSG010')], 500);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Se anulo el registro correctamente!',
+        ], 200);
     }
 }

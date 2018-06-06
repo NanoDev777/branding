@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Amount;
+use App\Cost;
 use Illuminate\Http\Request;
 
 class AmountController extends Controller
@@ -10,6 +11,7 @@ class AmountController extends Controller
     public function getAmounts($product)
     {
         try {
+            $costs   = Cost::all()->first();
             $amounts = Amount::orderBy('id', 'DESC')
                 ->where('product_id', $product)
                 ->get();
@@ -19,12 +21,14 @@ class AmountController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $amounts,
+            'cbn'     => $costs['chilean'],
         ], 200);
     }
 
     public function store(Request $request)
     {
         try {
+            $costs  = Cost::all()->first();
             $amount = Amount::create([
                 'quantity'   => $request->quantity,
                 'price'      => $request->price,
@@ -36,6 +40,7 @@ class AmountController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $amount,
+            'cbn'     => $costs['chilean'],
             'message' => message('MSG001'),
         ], 201);
     }

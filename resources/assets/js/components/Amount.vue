@@ -9,6 +9,7 @@
               <v-text-field
                 label="Cantidad"
                 v-model="form.quantity"
+                @focus ="$event.target.select()"
                 data-vv-name="quantity"
                 v-validate="'required|numeric|max:16'"
                 :error-messages="errors.collect('quantity')"
@@ -18,6 +19,7 @@
               <v-text-field
                 label="Precio"
                 v-model="form.price"
+                @focus ="$event.target.select()"
                 data-vv-name="price"
                 v-validate="'required|decimal:2|max:8'"
                 :error-messages="errors.collect('price')"
@@ -57,7 +59,7 @@
                 <v-edit-dialog
                   :return-value.sync="props.item.price"
                   lazy
-                > {{ props.item.price }}
+                > $ {{ props.item.price | currency }}
                   <v-text-field
                     slot="input"
                     v-model="props.item.price"
@@ -66,6 +68,7 @@
                   ></v-text-field>
                 </v-edit-dialog>
               </td>
+              <td class="text-xs-left">{{ (props.item.price / props.item.cbn).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}}</td>
               <td class="text-xs-left">{{ props.item.created_at | formatDate('DD/MM/YYYY') }}</td>
               <td class="text-xs-left">{{ props.item.updated_at | formatDate('DD/MM/YYYY') }}</td>
               <td>
@@ -123,6 +126,7 @@
             value: 'cantidad'
           },
           { text: 'Precio', value: 'precio' },
+          { text: 'Precio Bs', value: 'preciob' },
           { text: 'Registrado', value: 'registrado' },
           { text: 'Actualizado', value: 'actualizado' },
           { text: 'Acción', value: 'accion' }
@@ -160,6 +164,7 @@
             let rObj = obj
             rObj['update'] = false
             rObj['delete'] = false
+            rObj['cbn'] = response.data.cbn
             return rObj
           })
           this.amounts = amounts
@@ -176,6 +181,7 @@
                 let amount = response.data.data
                 amount["update"] = false
                 amount["delete"] = false
+                amount["cbn"] = response.data.cbn
                 this.amounts.unshift(amount)
                 this.$snotify.simple(response.data.message, 'Felicidades')
               }

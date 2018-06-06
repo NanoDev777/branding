@@ -84,18 +84,25 @@
                           label="editar"
                           v-model="props.item.quantity"
                           single-line
-                          counter
                           @focus ="$event.target.select()"
-                          :rules="[max25chars]"
+                          data-vv-name="quantity"
+                          v-validate="'required|numeric|max:8'"
+                          :error-messages="errors.collect('quantity')"
                         ></v-text-field>
                         </v-edit-dialog>
                       </td>
-                      <td width="5%">
+                      <td></td>
+                      <td width="8%">
                         <v-select
                           :items="props.item.images"
                           v-model="props.item.url"
                           item-value="id"
+                          single-line
                           chips
+                          max-height="auto"
+                          data-vv-name="image"
+                          v-validate="'required'"
+                          :error-messages="errors.collect('image')"
                         >
                           <template slot="selection" slot-scope="data">
                             <v-chip
@@ -129,6 +136,7 @@
                       From {{ pageStart }} to {{ pageStop }}
                     </template>
                   </v-data-table>
+                  <pre>{{ $data.quo }}</pre>
                 </v-card>
               </v-flex>
             </v-layout>
@@ -146,24 +154,47 @@
                         <v-text-field
                           label="Empresa/Cliente"
                           v-model="form.customer"
+                          data-vv-name="customer"
+                          v-validate="'required|max:64'"
+                          :error-messages="errors.collect('customer')"
                         ></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md3 lg3>
                         <v-text-field
                           label="Persona Contacto"
                           v-model="form.contact"
+                          data-vv-name="contact"
+                          v-validate="'required|max:64'"
+                          :error-messages="errors.collect('contact')"
                         ></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md3 lg3>
                         <v-text-field
                           label="Teléfono"
                           v-model="form.phone"
+                          data-vv-name="phone"
+                          v-validate="'required|max:32'"
+                          :error-messages="errors.collect('phone')"
                         ></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md3 lg3>
                         <v-text-field
                           label="Dirección"
-                          v-model="form.adress"
+                          v-model="form.address"
+                          data-vv-name="address"
+                          v-validate="'required|max:128'"
+                          :error-messages="errors.collect('address')"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
+                    <v-layout row wrap>
+                      <v-flex xs12 sm12 md3 lg3>
+                        <v-text-field
+                          label="Plazo de Entrega (Días)"
+                          v-model="form.term"
+                          data-vv-name="term"
+                          v-validate="'required|numeric|max:8'"
+                          :error-messages="errors.collect('term')"
                         ></v-text-field>
                       </v-flex>
                     </v-layout>
@@ -183,6 +214,9 @@
 
 <script>
   export default {
+    $_veeValidate: {
+      validator: 'new'
+    },
     data () {
       return {
         loading: false,
@@ -192,21 +226,53 @@
         items: [],
         select: [],
         quo: [],
-        max25chars: (v) => !!v || 'Ingrese la cantidad',
-        pagination: {},
         headers: [
           {text: 'Código', value: 'codigo'},
           {text: 'Nombre', value: 'nombre'},
           {text: 'Cantidad', value: 'cantidad'},
+          {text: 'Logo Extra', value: 'logo'},
           {text: 'Imagen', value: 'imagen'}
         ],
         form: {
           customer: '',
           contact: '',
           phone:'',
-          adress:''
+          address:'',
+          term: ''
         },
-        load: false
+        dictionary: {
+          custom: {
+            customer: {
+              required: () => 'Este campo es requerido',
+              max: 'Este campo debe tener un máximo de 64 caracteres'
+            },
+            contact: {
+              required: () => 'Este campo es requerido',
+              max: 'Este campo debe tener un máximo de 64 caracteres'
+            },
+            phone: {
+              required: () => 'Este campo es requerido',
+              max: 'Este campo debe tener un máximo de 32 caracteres'
+            },
+            address: {
+              required: () => 'Este campo es requerido',
+              max: 'Este campo debe tener un máximo de 128 caracteres'
+            },
+            term: {
+              required: () => 'Este campo es requerido',
+              numeric: 'Este campo solo puede contener números enteros',
+              max: 'Este campo debe tener un máximo de 8 caracteres'
+            },
+            image: {
+              required: () => 'Este campo es requerido'
+            },
+            quantity: {
+              required: () => 'Este campo es requerido',
+              numeric: 'Este campo solo puede contener números enteros',
+              max: 'Este campo debe tener un máximo de 8 caracteres'
+            }
+          }
+        }
       }
     },
 
@@ -214,6 +280,10 @@
       search (val) {
         val && this.querySelections(val)
       }
+    },
+
+    mounted () {
+      this.$validator.localize('en', this.dictionary)
     },
 
     methods: {
@@ -225,16 +295,14 @@
           this.loading = false
         })
         .catch(error => {
-
+          this.loading = false
         })
       },
       getDataTable () {
         this.loader = true
-
         let array = this.select.filter(o => !this.quo.find(x => x.id === o))
         let remove = this.quo.filter(o => !this.select.find(x => x === o.id)).map(i => i.id)
         let post_data = { json_data: JSON.stringify(array) }
-
         axios.post('/api/select-product', post_data)
         .then((response) => {
           if (response.status === 200) {
@@ -248,37 +316,29 @@
         })
         .catch((error) => {
           this.loader = false
-          this.$snotify.error('Por favor, inténtelo de nuevo más tarde.', 'Error')
         })
       },
       generate () {
-        this.progress = true
-        
-        let data = this.quo.map(({id, quantity, url}) => ({id, quantity: parseFloat(quantity), url}))
-        let jsonString = {data: JSON.stringify(data), details: JSON.stringify(this.form)};
-        axios.post('/api/reporte', jsonString)
-        .then((response) => {
-          if (response.status === 200) {
-            let url = `/${response.data.data}`
-            window.open(
-              url,
-              '_blank' 
-            )
-            this.progress = false
+        this.$validator.validateAll().then((result) => {
+          if (result) {
+            this.progress = true
+            let data = this.quo.map(({id, quantity, url}) => ({id, quantity: parseFloat(quantity), url}))
+            let jsonString = {data: JSON.stringify(data), details: JSON.stringify(this.form)};
+            axios.post('/api/reporte', jsonString)
+            .then((response) => {
+              if (response.status === 200) {
+                let url = `/${response.data.data}`
+                window.open(
+                  url,
+                  '_blank' 
+                )
+                this.progress = false
+              }
+            })
+            .catch((error) => {
+              this.progress = false
+            })
           }
-        })
-        .catch((error) => {
-          this.progress = false
-          this.$snotify.error('Por favor, inténtelo de nuevo más tarde.', 'Error')   
-        })
-      },
-      deletePDF(file) {
-        axios.post('/api/delete',{ file: file })
-        .then((response) => {
-          console.log(response)
-        })
-        .catch((error) => {
-          console.log(error)
         })
       }
     }

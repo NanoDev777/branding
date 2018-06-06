@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\DB;
 class Quotation extends Model
 {
     protected $fillable = [
-        'cite', 'customer', 'total',
+        'cite', 'customer', 'contact', 'phone', 'address', 'term', 'state',
     ];
+
+    protected $dates = ['created_at', 'updated_at'];
 
     public function products()
     {
@@ -21,7 +23,10 @@ class Quotation extends Model
         $data = [
             'cite'     => $request['cite'],
             'customer' => $request['customer'],
-            'total'    => $request['total'],
+            'contact'  => $request['contact'],
+            'phone'    => $request['phone'],
+            'address'  => $request['address'],
+            'term'     => $request['term'],
         ];
         DB::beginTransaction();
         try {

@@ -151,8 +151,7 @@ export default [
           {
             path: ':id',
             name: 'ShowQuotation',
-            component: ShowQuotation,
-            props: true
+            component: ShowQuotation
           }
         ]
       },
@@ -226,5 +225,6 @@ export default [
     meta: { 
       redirectIfLogged: true 
     } 
-  }
+  },
+  { path: '*', component: require('../components/404.vue') }
 ]

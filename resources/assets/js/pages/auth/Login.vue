@@ -80,7 +80,7 @@
     },
     methods: {
       login () {
-        let data = { grant_type: 'password', client_id: 2, client_secret: 'g5gpFeMwGOzMySln0H0kGJGUbZNYJYUR74V0O31I',username: this.form.email,password: this.form.password }
+        let data = { grant_type: 'password', client_id: 2, client_secret: '9kxMviWN76r9j22xuyNGRB81n1vEEpepI02bPDuE',username: this.form.email,password: this.form.password }
         this.alert = false
         if (this.$refs.form.validate()) {
           this.busy = false

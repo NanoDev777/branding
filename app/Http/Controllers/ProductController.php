@@ -104,7 +104,7 @@ class ProductController extends Controller
         }
         return response()->json([
             'success' => true,
-            'id'      => 1,
+            'id'      => $product->id,
             'message' => message('MSG001'),
         ], 201);
     }
@@ -173,8 +173,7 @@ class ProductController extends Controller
 
     public function searchProduct($code)
     {
-        $product = DB::table('products')
-            ->leftJoin('images', 'products.id', '=', 'images.product_id')
+        $product = Product::leftJoin('images', 'products.id', '=', 'images.product_id')
             ->select('products.id', 'products.code', 'products.name', 'images.image as avatar')
             ->where('code', 'like', '%' . $code . '%')
             ->get();
@@ -188,7 +187,7 @@ class ProductController extends Controller
         $array = array();
         foreach ($data as $key => $value) {
             $products = Product::where('id', $value)
-                ->select('id', 'code', 'name', DB::raw('0 as quantity'), DB::raw('0 as url'))
+                ->select('id', 'code', 'name', DB::raw('0 as quantity'), DB::raw('"" as url'))
                 ->first();
             $products->load('images');
             $array[] = $products;

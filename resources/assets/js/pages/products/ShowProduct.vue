@@ -22,11 +22,13 @@
                             <img v-if="url" class="img-responsive" :src="'/img/products/'+url" />
                           </v-card>
                         </v-dialog>
-                        <v-carousel>
+                        <v-carousel v-if="images.length > 0">
                           <v-carousel-item
                             v-for="(item,i) in images"
                             :key="i"
                             :src="'/img/products/'+item.image"
+                            transition="fade"
+                            reverse-transition="fade" 
                             >
                             <div title="Eliminar Imagen">
                               <v-btn fab flat small color="red accent-3" @click="deleteImg(item.id)" :loading="imgloader">
@@ -207,7 +209,7 @@
         .then(response => {
           if (response.data.success) {
             this.product = response.data.data
-            this.images = response.data.data.images.map(({id, image}) => ({id, image}))
+            this.images = response.data.data.images
             if (response.data.data.packing) {
               this.packing = response.data.data.packing
             }
