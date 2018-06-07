@@ -187,7 +187,7 @@ class ProductController extends Controller
         $array = array();
         foreach ($data as $key => $value) {
             $products = Product::where('id', $value)
-                ->select('id', 'code', 'name', DB::raw('0 as quantity'), DB::raw('"" as url'))
+                ->select('id', 'code', 'name', DB::raw('0 as quantity'), DB::raw('0 as extra'), DB::raw('"" as url'))
                 ->first();
             $products->load('images');
             $array[] = $products;

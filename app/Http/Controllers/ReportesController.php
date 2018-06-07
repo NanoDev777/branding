@@ -47,16 +47,29 @@ class ReportesController extends Controller
         $amounts = Amount::where('product_id', $product)->orderBy('id', 'ASC')->get();
         $val     = [];
         $c       = 0;
+        $min     = $amounts[0]->quantity;
+        foreach ($amounts as $value) {
+            if ($value->quantity < $min) {
+                $min = $value->quantity;
+            }
+        }
+
         foreach ($amounts as $key => $value) {
             if ($c === 0) {
                 $val = $value;
             }
             if ($quantity <= $val->quantity) {
-                return $val;
+                return [
+                    'min'     => $min,
+                    'amounts' => $val,
+                ];
             }
             if ($quantity < $value->quantity) {
                 if ($quantity >= $val->quantity) {
-                    return $val;
+                    return [
+                        'min'     => $min,
+                        'amounts' => $val,
+                    ];
                 }
             }
             $val = $value;
@@ -102,7 +115,7 @@ class ReportesController extends Controller
             $footer .= "td{font-size: x-small;}";
             $footer .= '</style>';
             $footer .= "<table>";
-            $footer .= "<tr><td colspan='3'><strong>Plazo de Entrega: </strong>{$detailsData['term']} Días Hábiles a Partir de la Aprobación del Cliente</td></tr>";
+            $footer .= "<tr><td colspan='3'><strong>Plazo de Entrega: </strong>{$detailsData['term']} Días Hábiles a Partir de la Aprobación del Cliente, Incluye logotipo 1 color.</td></tr>";
             $footer .= "<tr><td colspan='3'><strong>Forma de Pago: </strong>Contra entrega de factura</td></tr>";
             $footer .= "<tr><td colspan='3'><strong>Validez Cotización: </strong>40 Días</td></tr>";
             $footer .= "<tr><td colspan='3'><strong>Garantía: </strong>Todos nuestros productos cuentan con certificación de calidad Europea de 1 año</td></tr>";
@@ -112,12 +125,21 @@ class ReportesController extends Controller
 
         $array      = array();
         $productsId = array();
+        $errors     = array(); //array de errores
+        $extra      = 0;
         foreach ($productsData as $key => $value) {
             $prices  = $this->getPrices($value['quantity']);
             $amounts = $this->getAmount($value['id'], $value['quantity']);
-            $cost    = Cost::all()->first();
+            //aqui verifivar cantidades y agregar al array de errores
+            if ($value['quantity'] < $amounts['min']) {
+                $errors[] = ['code' => $value['code'], 'name' => $value['name'], 'min' => $amounts['min']];
+            }
 
-            $cbn = round($amounts['price'] / $cost['chilean'], 2);
+            $value['extra'] > 0 ? $extra = $value['extra'] : $extra = 0;
+
+            $cost = Cost::all()->first();
+
+            $cbn = round($amounts['amounts']->price / $cost['chilean'], 2);
 
             $transfer  = round($cbn * $cost['transfer'], 2);
             $import    = round($cbn * $cost['amount'], 2);
@@ -132,10 +154,18 @@ class ReportesController extends Controller
             $name = Product::join('images', 'images.product_id', '=', 'products.id')
                 ->where('products.id', $value['id'])
                 ->where('images.id', $value['url'])
-                ->select('products.code', 'products.name', 'products.description', 'products.width', 'products.height', 'products.thickness', 'products.weight', 'images.image', DB::raw("{$value['quantity']} as quantity"), DB::raw("{$total} as unitary"))
+                ->select('products.code', 'products.name', 'products.description', 'products.width', 'products.height', 'products.thickness', 'products.weight', 'images.image', DB::raw("{$value['quantity']} as quantity"), DB::raw("{$total} as unitary"), DB::raw("{$extra} as extra"))
                 ->first();
             $array[$key]              = $name;
             $productsId[$value['id']] = ['quantity' => $value['quantity'], 'total' => $total];
+        }
+
+        //aqui preguntar si mi array de errores tiene valores y retornarlo
+        if (!empty($errors)) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $errors,
+            ]);
         }
 
         $count     = Quotation::count() + 1;
@@ -185,6 +215,7 @@ class ReportesController extends Controller
                 PDF::setJPEGQuality(75);
                 PDF::Image($url, 11, 77, 88, 80, '', '', '', true, 100, '', false, false, 1, false, false, false);
 
+                $extra1  = round($array[$a]->quantity * $array[$a]->extra, 2);
                 $product = "";
                 $product .= '<style type=text/css>';
                 $product .= 'table {border:1px black solid; font-family: dejavusans;  border-spacing: 4px;}';
@@ -197,8 +228,8 @@ class ReportesController extends Controller
                 $product .= "<tr><td><b>Descripción :</b></td></tr>";
                 $product .= "<tr><td>" . $array[$a]->description . "</td></tr>";
                 $product .= "<tr><td><b>Dimensiones: </b> " . $array[$a]->width . " cm / " . $array[$a]->height . " cm / " . $array[$a]->thickness . " cm | " . $array[$a]->weight . " gr</td></tr>";
-                $product .= "<tr><td><b>Cantidad: </b> " . $array[$a]->quantity . "</td></tr>";
-                $product .= "<tr><td><b>Precio Unitario: </b>" . number_format($array[$a]->unitary, 2, '.', ',') . " Bs. &nbsp; &nbsp; <b>Total: </b>" . number_format($array[$a]->quantity * $array[$a]->unitary, 2, '.', ',') . " Bs.</td></tr>";
+                $product .= "<tr><td><b>Cantidad: </b> " . $array[$a]->quantity . "&nbsp; &nbsp;<b>Logo Extra :</b> " . $array[$a]->extra . " Bs.</td></tr>";
+                $product .= "<tr><td><b>Precio Unitario: </b>" . number_format($array[$a]->unitary, 2, '.', ',') . " Bs. &nbsp; &nbsp; <b>Total: </b>" . number_format($array[$a]->quantity * $array[$a]->unitary + $extra1, 2, '.', ',') . " Bs.</td></tr>";
                 $product .= "</table>";
                 PDF::writeHTMLCell($w = 99, $h = 0, $x = '100', $y = '77', $product, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
 
@@ -206,6 +237,7 @@ class ReportesController extends Controller
                     $url2 = public_path('img/products/' . $array[$b]->image);
                     PDF::setJPEGQuality(75);
                     PDF::Image($url2, 11, 162, 88, 80, '', '', '', true, 100, '', false, false, 1, false, false, false);
+                    $extra2   = round($array[$b]->quantity * $array[$b]->extra, 2);
                     $product2 = "";
                     $product2 .= '<style type=text/css>';
                     $product2 .= 'table {border:1px black solid; font-family: dejavusans;  border-spacing: 4px;}';
@@ -218,8 +250,8 @@ class ReportesController extends Controller
                     $product2 .= "<tr><td><b>Descripción :</b></td></tr>";
                     $product2 .= "<tr><td>" . $array[$b]->description . "</td></tr>";
                     $product2 .= "<tr><td><b>Dimensiones: </b> " . $array[$b]->width . " cm / " . $array[$b]->height . " cm / " . $array[$b]->thickness . " cm | " . $array[$b]->weight . " gr</td></tr>";
-                    $product2 .= "<tr><td><b>Cantidad: </b> " . $array[$b]->quantity . "</td></tr>";
-                    $product2 .= "<tr><td><b>Precio Unitario: </b>" . number_format($array[$b]->unitary, 2, '.', ',') . " Bs. &nbsp; &nbsp; <b>Total: </b>" . number_format($array[$b]->quantity * $array[$b]->unitary, 2, '.', ',') . " Bs.</td></tr>";
+                    $product2 .= "<tr><td><b>Cantidad: </b> " . $array[$b]->quantity . "&nbsp; &nbsp;<b>Logo Extra :</b> " . $array[$b]->extra . " Bs.</td></tr>";
+                    $product2 .= "<tr><td><b>Precio Unitario: </b>" . number_format($array[$b]->unitary, 2, '.', ',') . " Bs. &nbsp; &nbsp; <b>Total: </b>" . number_format($array[$b]->quantity * $array[$b]->unitary + $extra2, 2, '.', ',') . " Bs.</td></tr>";
                     $product2 .= "</table>";
                     PDF::writeHTMLCell($w = 99, $h = 0, $x = '100', $y = '162', $product2, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
                 }
@@ -228,7 +260,10 @@ class ReportesController extends Controller
             }
             $file = 'Cotizacion.pdf';
             PDF::Output(public_path($file), 'F');
-            return response()->json(["data" => $file]);
+            return response()->json([
+                'success' => true,
+                'data'    => $file,
+            ]);
         } else {
             return response()->json(['message' => message('MSG010')], 500);
         }

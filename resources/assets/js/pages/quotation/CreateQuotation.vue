@@ -57,6 +57,20 @@
           </v-card-title>
           <v-container fluid>
             <v-layout>
+                <v-flex xs12 sm12 md12 lg12>
+                  <v-alert v-if="alerts.length > 0" :value="true" outline color="error" icon="warning">
+                    <strong>Se encontraron los siguientes errores:</strong>
+                    <div>
+                      <ul>
+                        <li v-for="item in alerts">
+                          El producto {{ item.name }} con código <strong>{{ item.code }}</strong> necesita una cantidad mínima de <strong>{{ item.min }}</strong> unidades
+                        </li>
+                      </ul>
+                    </div>
+                  </v-alert>
+                </v-flex>
+            </v-layout>
+            <v-layout>
               <v-flex xs12 sm12 md12 lg12>
                 <v-card>
                   <v-data-table
@@ -91,7 +105,29 @@
                         ></v-text-field>
                         </v-edit-dialog>
                       </td>
-                      <td></td>
+                      <td>
+                        <v-edit-dialog
+                          :return-value.sync="props.item.extra"
+                          large
+                          lazy
+                          persistent
+                          cancel-text="cancelar"
+                          save-text="aceptar"
+                        >
+                        <div>{{ props.item.extra }}</div>
+                        <div slot="input" class="mt-3 title">Cantidad</div>
+                        <v-text-field
+                          slot="input"
+                          label="editar"
+                          v-model="props.item.extra"
+                          single-line
+                          @focus ="$event.target.select()"
+                          data-vv-name="extra"
+                          v-validate="'required|decimal:2|max:8'"
+                          :error-messages="errors.collect('extra')"
+                        ></v-text-field>
+                        </v-edit-dialog>
+                      </td>
                       <td width="8%">
                         <v-select
                           :items="props.item.images"
@@ -136,7 +172,6 @@
                       From {{ pageStart }} to {{ pageStop }}
                     </template>
                   </v-data-table>
-                  <pre>{{ $data.quo }}</pre>
                 </v-card>
               </v-flex>
             </v-layout>
@@ -226,6 +261,7 @@
         items: [],
         select: [],
         quo: [],
+        alerts:[],
         headers: [
           {text: 'Código', value: 'codigo'},
           {text: 'Nombre', value: 'nombre'},
@@ -269,6 +305,11 @@
             quantity: {
               required: () => 'Este campo es requerido',
               numeric: 'Este campo solo puede contener números enteros',
+              max: 'Este campo debe tener un máximo de 8 caracteres'
+            },
+            extra: {
+              required: () => 'Este campo es requerido',
+              decimal: 'El campo debe ser numérico y puede contener 2 decimales',
               max: 'Este campo debe tener un máximo de 8 caracteres'
             }
           }
@@ -321,17 +362,21 @@
       generate () {
         this.$validator.validateAll().then((result) => {
           if (result) {
+            this.alerts = []
             this.progress = true
-            let data = this.quo.map(({id, quantity, url}) => ({id, quantity: parseFloat(quantity), url}))
+            let data = this.quo.map(({id, code, name, quantity, extra, url}) => ({id, code, name, quantity: parseFloat(quantity), extra, url}))
             let jsonString = {data: JSON.stringify(data), details: JSON.stringify(this.form)};
             axios.post('/api/reporte', jsonString)
             .then((response) => {
-              if (response.status === 200) {
+              if (response.data.success) {
                 let url = `/${response.data.data}`
                 window.open(
                   url,
                   '_blank' 
                 )
+                this.progress = false
+              } else if(!response.data.success){
+                this.alerts = response.data.errors
                 this.progress = false
               }
             })
@@ -349,4 +394,5 @@
   #img {
     background: rgba(255,255,255,0.12);
   }
+  ul { list-style: none }
 </style>
