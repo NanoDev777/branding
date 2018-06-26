@@ -22,7 +22,10 @@ class CreateQuotationsTable extends Migration
             $table->string('address', 128);
             $table->integer('term')->unsigned();
             $table->tinyInteger('state')->default('0');
+            $table->integer('user_id')->unsigned();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

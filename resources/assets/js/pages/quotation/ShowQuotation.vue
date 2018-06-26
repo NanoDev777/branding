@@ -50,12 +50,28 @@
                           </v-layout>
                         </v-flex>
                       </v-layout>
-                      <v-list-tile>
-                        <v-list-tile-content>
-                          <v-list-tile-title>Fecha de Emisión</v-list-tile-title>
-                          <v-list-tile-sub-title>{{ created | formatDate('DD/MM/YYYY') }}</v-list-tile-sub-title>
-                        </v-list-tile-content>
-                      </v-list-tile>
+                      <v-layout>
+                        <v-flex xs12 sm12 md12 lg12>
+                          <v-layout row wrap>
+                            <v-flex xs12 sm12 md6 lg6>
+                              <v-list-tile>
+                                <v-list-tile-content>
+                                  <v-list-tile-title>Fecha de Emisión</v-list-tile-title>
+                                  <v-list-tile-sub-title>{{ created | formatDate('DD/MM/YYYY') }}</v-list-tile-sub-title>
+                                </v-list-tile-content>
+                              </v-list-tile>
+                            </v-flex>
+                            <v-flex xs12 sm12 md6 lg6>
+                              <v-list-tile>
+                                <v-list-tile-content>
+                                  <v-list-tile-title>Realizado por</v-list-tile-title>
+                                  <v-list-tile-sub-title>{{ user.name }}</v-list-tile-sub-title>
+                                </v-list-tile-content>
+                              </v-list-tile>
+                            </v-flex>
+                          </v-layout>
+                        </v-flex>
+                      </v-layout>
                       <v-list-tile>
                         <v-list-tile-content>
                           <v-list-tile-title>Cliente</v-list-tile-title>
@@ -175,6 +191,7 @@
         created: '',
         updated: '',
         products: [],
+        user: {},
         headers: [
           {
             text: 'Código',
@@ -192,7 +209,6 @@
 
     created() {
       this.showQuotation()
-      console.log(this.customer)
     },
 
     methods: {
@@ -210,6 +226,7 @@
             this.created = response.data.data.created_at
             this.updated = response.data.data.updated_at
             this.products = response.data.data.products
+            this.user = response.data.data.user
             this.success = true
           }
         })

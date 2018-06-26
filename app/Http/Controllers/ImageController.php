@@ -11,25 +11,26 @@ class ImageController extends Controller
     public function store(Request $request)
     {
         try {
-            if ($request->get('image')) {
-                $image = $request->get('image');
-                $name  = time() . '.' . explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
-                $path  = public_path('img/products/' . $name);
-                \Image::make($request->get('image'))->save($path);
+            if ($request->file('file')) {
+                $name = str_random(10) . '.' . $request->file('file')->getClientOriginalExtension();
+                $path = public_path('img/products/' . $name);
+                \Image::make($request->file('file'))->save($path);
 
                 $img = Image::create([
                     'image'      => $name,
-                    'product_id' => $request->id,
+                    'product_id' => $request->product,
                 ]);
+
+                return response()->json([
+                    'success' => true,
+                    'data'    => $img,
+                    'message' => message('MSG001'),
+                ], 201);
             }
+
         } catch (\Exception $e) {
             return response()->json(['message' => message('MSG010')], 500);
         }
-        return response()->json([
-            'success' => true,
-            'data'    => $img,
-            'message' => message('MSG001'),
-        ], 201);
     }
 
     public function destroy($id)

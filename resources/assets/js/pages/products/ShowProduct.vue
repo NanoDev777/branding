@@ -118,7 +118,7 @@
                 <v-container fluid>
                   <v-layout>
                     <v-flex xs12 sm12 md12 lg12>
-                      <file-input :product="id" v-on:data-received='getImage'></file-input>
+                      <dropzone :product="id" v-on:data-received='getImage'></dropzone>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -133,17 +133,17 @@
 
 <script>
   import Product from '../../class/product/Product'
-  import FileInput from '../../components/FileInput.vue'
   import Amount from '../../components/Amount.vue'
   import Packing from '../../components/Packing.vue'
+  import Dropzone from '../../components/Dropzone.vue'
 
   export default {
     name: 'show-product',
     props: ["id"],
     components: {
-      'file-input' : FileInput,
       'amount' : Amount,
-      'packing' : Packing
+      'packing' : Packing,
+      'dropzone' : Dropzone
     },
     data () {
       return {
@@ -226,9 +226,6 @@
       },
 
       getImage(data) {
-        delete data.updated_at
-        delete data.created_at
-        delete data.product_id
         this.images.unshift(data)
       },
 

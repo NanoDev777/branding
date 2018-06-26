@@ -29,15 +29,52 @@
               </v-layout>
             </v-container>
           </v-card>
-          <v-container fluid>
+          <div v-if="currentUser.profile_id == 1">
+            <v-card flat>
+              <v-container fluid>
+                <v-layout row child-flex wrap>
+                  <div>
+                    <v-toolbar color="blue lighten-4">
+                      <v-toolbar-title>Aprobados</v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <span class="headline">{{ approved }}</span>
+                    </v-toolbar>
+                  </div>
+                  <div>
+                    <v-toolbar color="orange lighten-4">
+                      <v-toolbar-title>Pendientes</v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <span class="headline">{{ slopes }}</span>
+                    </v-toolbar>
+                  </div>
+                  <div>
+                    <v-toolbar color="red lighten-4">
+                      <v-toolbar-title>Anulados</v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <span class="headline">{{ canceled }}</span>
+                    </v-toolbar>
+                  </div>
+                </v-layout>
+              </v-container>
+            </v-card>
+            <graphic></graphic>
+          </div>
+          <v-container fluid v-else>
             <v-layout>
               <v-flex xs12 sm12 md12 lg12>
-                <v-card>
-                  <v-card-title>
-                    <span class="headline">Productos Más Cotizados</span> 
-                  </v-card-title>
-                  <div id="chartdiv" style="width: 100%; height: 400px;"></div>
-                </v-card>
+                <v-jumbotron color="grey lighten-2">
+                  <v-container fill-height>
+                    <v-layout align-center>
+                      <v-flex>
+                        <h3 class="display-3">Bienvenido</h3>
+                        <span class="subheading">Realize cotizaciones de sus productos de forma rápida y segura, para generar una cotización rapidamente pulse el botón de color azul. para ver otras opciones a la que usted tiene permisos, dirígase al menu en la parte izquierda de su pantalla.</span>
+                        <v-divider class="my-3"></v-divider>
+                        <div class="title mb-3">Cotización PDF!</div>
+                        <v-btn to="quotations/create" large color="primary" class="mx-0">GENERAR</v-btn>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-jumbotron>
               </v-flex>
             </v-layout>
           </v-container>
@@ -48,75 +85,38 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex'
+  import Graphic from './Graphic'
+
   export default {
     name: 'dashboard',
     data () {
       return {
         success: false,
         products: null,
-        quotations: null
+        quotations: null,
+        approved: null,
+        slopes: null,
+        canceled: null
       }
     },
 
+    computed: {
+      ...mapGetters([
+        'currentUser'
+      ])
+    },
+
+    components: {
+      'graphic' : Graphic,
+    },
+
     created(){
-      this.getCharts()
       this.getTotalProductsQuotaions()
+      this.states()
     },
 
     methods: {
-      getCharts() {
-        axios.get('/api/max-products')
-        .then(response => {
-          if (response.data.success) {
-            AmCharts.makeChart("chartdiv", {
-              "type": "serial",
-              "theme": "none",
-              "categoryField": "code",
-              "rotate": true,
-              "startDuration": 1,
-              "categoryAxis": {
-                "gridPosition": "start",
-                "position": "left"
-              },
-              "trendLines": [],
-              "graphs": [
-                {
-                  "balloonText": "<b>[[name]] - Total Cotizado : [[value]]</b>",
-                  "fillAlphas": 10,
-                  "id": "AmGraph-1",
-                  "lineAlpha": 10,
-                  "title": "Income",
-                  "type": "column",
-                  "valueField": "cotizaciones"
-                },
-                {
-                  "balloonText": "<b>Cantidad Requerida : [[value]]</b>",
-                  "fillAlphas": 10,
-                  "id": "AmGraph-2",
-                  "lineAlpha": 10,
-                  "title": "Expenses",
-                  "type": "column",
-                  "valueField": "total"
-                }
-              ],
-              "guides": [],
-              "valueAxes": [
-                {
-                  "id": "ValueAxis-1",
-                  "position": "top",
-                  "axisAlpha": 0
-                }
-              ],
-              "allLabels": [],
-              "balloon": {},
-              "titles": [],
-              "dataProvider": response.data.data
-            })
-            this.success = response.data.success
-          }
-        })
-      },
-
      getTotalProductsQuotaions() {
         axios.get('/api/total-products')
         .then(response => {
@@ -124,6 +124,19 @@
             this.products = response.data.data.products
             this.quotations = response.data.data.quotations
           }
+          this.success = response.data.success
+        })
+      },
+
+      states() {
+        axios.get('/api/quotations-state')
+        .then(response => {
+          if (response.data.success) {
+            this.approved = response.data.data.approved
+            this.slopes = response.data.data.slopes
+            this.canceled = response.data.data.canceled
+          }
+          this.success = response.data.success
         })
       }
     }

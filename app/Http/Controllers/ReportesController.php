@@ -127,12 +127,18 @@ class ReportesController extends Controller
         $productsId = array();
         $errors     = array(); //array de errores
         $extra      = 0;
+        $unitary    = 0;
         foreach ($productsData as $key => $value) {
             $prices  = $this->getPrices($value['quantity']);
             $amounts = $this->getAmount($value['id'], $value['quantity']);
             //aqui verifivar cantidades y agregar al array de errores
             if ($value['quantity'] < $amounts['min']) {
-                $errors[] = ['code' => $value['code'], 'name' => $value['name'], 'min' => $amounts['min']];
+                //si es menor pero tiene el checnox true que pase, sino agregar al array de errors
+                if ($value['state'] == 1 && $value['price'] > 0) {
+                    $unitary = round($value['price'], 2);
+                } else {
+                    $errors[] = ['code' => $value['code'], 'name' => $value['name'], 'min' => $amounts['min']];
+                }
             }
 
             $value['extra'] > 0 ? $extra = $value['extra'] : $extra = 0;
@@ -149,7 +155,7 @@ class ReportesController extends Controller
             $utility = round($product * $prices['utility'], 2);
             $sf      = round($product + $utility, 2);
             $iva     = round($sf * $cost['iva'], 2);
-            $total   = round($sf + $iva, 2);
+            $total   = $unitary > 0 ? $unitary : round($sf + $iva, 2);
 
             $name = Product::join('images', 'images.product_id', '=', 'products.id')
                 ->where('products.id', $value['id'])
@@ -176,6 +182,7 @@ class ReportesController extends Controller
             'phone'    => $detailsData['phone'],
             'address'  => $detailsData['address'],
             'term'     => $detailsData['term'],
+            'user_id'  => $detailsData['user_id'],
             'products' => $productsId,
         ];
         $query = $this->quotation->saveQuotation($quotation);
@@ -298,7 +305,9 @@ class ReportesController extends Controller
         });
         PDF::AddPage();
 
-        $quotation = Quotation::with('products')->findOrFail($id);
+        $quotation = Quotation::findOrFail($id);
+        $quotation->load('products');
+        $quotation->load('user');
 
         $state = '';
         switch ($quotation['state']) {
@@ -324,6 +333,7 @@ class ReportesController extends Controller
         $details .= '</style>';
         $details .= "<table>";
         $details .= "<thead><tr><th colspan='3'><strong>DETALLES</strong></th></tr></thead>";
+        $details .= "<tr><td colspan='3'><strong>Realizado por: </strong>" . $quotation['user']->name . "</td></tr>";
         $details .= "<tr><td colspan='3'><strong>Empresa / Cliente: </strong>" . $quotation['customer'] . "</td></tr>";
         $details .= "<tr><td colspan='3'><strong>Persona Contacto: </strong>" . $quotation['contact'] . "</td></tr>";
         $details .= "<tr><td colspan='3'><strong>Teléfono: </strong>" . $quotation['phone'] . "</td></tr>";
@@ -338,7 +348,7 @@ class ReportesController extends Controller
         $date = "<b> Fecha de Emisión: </b>" . $quotation['created_at']->format('d/m/Y');
         PDF::writeHTMLCell($w = 189, $h = 0, $x = '135', $y = '33', $date, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
         $cite = "<h3>Productos Requeridos</h3>";
-        PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '85', $cite, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+        PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '90', $cite, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
 
         $total = 0;
         $html  = "";
@@ -382,7 +392,7 @@ class ReportesController extends Controller
         $html .= "<td><b>" . number_format($total, 2, '.', ',') . " Bs</b></td>";
         $html .= "</tr>";
         $html .= "</table>";
-        PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '93', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+        PDF::writeHTMLCell($w = 189, $h = 0, $x = '10', $y = '98', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
 
         $file = 'Detalle.pdf';
         PDF::Output(public_path($file), 'F');

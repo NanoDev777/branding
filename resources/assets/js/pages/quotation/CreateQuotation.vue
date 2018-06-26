@@ -77,10 +77,18 @@
                     :headers="headers"
                     :items="quo"
                     :loading="loader"
+                    expand
+                    class="elevation-1"
                   >
                     <v-progress-linear slot="progress" color="grey" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
-                      <td>{{ props.item.code }}</td>
+                      <td>
+                        {{ props.item.code }}
+                        <v-btn @click="props.expanded = !props.expanded" flat icon color="blue-grey lighten-3">
+                          <v-icon v-if="!props.expanded">add_circle</v-icon>
+                          <v-icon v-else>remove_circle</v-icon>
+                        </v-btn>
+                      </td>
                       <td>{{ props.item.name }}</td>
                       <td>
                         <v-edit-dialog
@@ -165,6 +173,38 @@
                         </v-select>
                       </td>
                     </template>
+                    <template slot="expand" slot-scope="props">
+                      <v-card flat>
+                        <v-card-text>
+                          <v-layout row wrap>
+                            <v-flex xs12 sm12 md4 lg4>
+                              <v-layout align-center>
+                                <v-checkbox 
+                                  color="warning" 
+                                  v-model="props.item.state" 
+                                  hide-details 
+                                  class="shrink mr-2"
+                                  v-on:change="changeState(props.item)">
+                                >
+                                </v-checkbox>
+                                <v-text-field 
+                                  :disabled="!props.item.state" 
+                                  v-model="props.item.price"
+                                  @focus ="$event.target.select()"
+                                  data-vv-name="price"
+                                  v-validate="'required|decimal:2|max:8'"
+                                  :error-messages="errors.collect('price')"
+                                  label="Precio Producto"
+                                  color="warning"
+                                  hint="Para poder agregar un precio a este producto, marque la casilla y escriba el monto correspondiente."
+                                  persistent-hint
+                                ></v-text-field>
+                              </v-layout>
+                            </v-flex>
+                          </v-layout>
+                        </v-card-text>
+                      </v-card>
+                    </template>
                     <template slot="no-data">
                       <center>Sin Datos</center>
                     </template>
@@ -248,6 +288,8 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex'
+
   export default {
     $_veeValidate: {
       validator: 'new'
@@ -274,7 +316,8 @@
           contact: '',
           phone:'',
           address:'',
-          term: ''
+          term: '',
+          user_id: null
         },
         dictionary: {
           custom: {
@@ -311,10 +354,21 @@
               required: () => 'Este campo es requerido',
               decimal: 'El campo debe ser numérico y puede contener 2 decimales',
               max: 'Este campo debe tener un máximo de 8 caracteres'
+            },
+            price: {
+              required: () => 'Este campo es requerido',
+              decimal: 'El campo debe ser numérico y puede contener 2 decimales',
+              max: 'Este campo debe tener un máximo de 8 caracteres'
             }
           }
         }
       }
+    },
+
+    computed: {
+      ...mapGetters([
+        'currentUser'
+      ])
     },
 
     watch: {
@@ -328,6 +382,12 @@
     },
 
     methods: {
+      changeState(item) {
+        if (!item.state) {
+          item.price = 0
+        }
+      },
+
       querySelections (v) {
         this.loading = true
         axios.get(`/api/search-product/${v}`)
@@ -353,6 +413,13 @@
             })
             this.loader = false
             this.quo = this.quo.filter(v => !remove.find(x => x === v.id))
+
+            this.quo = this.quo.map((obj) => { 
+              let o = Object.assign({}, obj)
+              o.state = false
+              o.price = 0
+              return o
+            })
           }
         })
         .catch((error) => {
@@ -360,11 +427,12 @@
         })
       },
       generate () {
+        this.form.user_id = this.currentUser.id
         this.$validator.validateAll().then((result) => {
           if (result) {
             this.alerts = []
             this.progress = true
-            let data = this.quo.map(({id, code, name, quantity, extra, url}) => ({id, code, name, quantity: parseFloat(quantity), extra, url}))
+            let data = this.quo.map(({id, code, name, quantity, extra, url, state, price}) => ({id, code, name, quantity: parseFloat(quantity), extra, url, state, price}))
             let jsonString = {data: JSON.stringify(data), details: JSON.stringify(this.form)};
             axios.post('/api/reporte', jsonString)
             .then((response) => {

@@ -50,9 +50,10 @@ class QuotationController extends Controller
     public function show($id)
     {
         try {
-            $quotation = Quotation::with('products')->findOrFail($id);
-            //$quotation = Quotation::findOrFail($id);
-            //$quotation->load('products');
+            //$quotation = Quotation::with('products')->findOrFail($id);
+            $quotation = Quotation::findOrFail($id);
+            $quotation->load('products');
+            $quotation->load('user');
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => message('MSG011')], 404);
         }

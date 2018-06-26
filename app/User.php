@@ -36,6 +36,11 @@ class User extends Authenticatable
         return $this->belongsTo(Profile::class);
     }
 
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class);
+    }
+
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);

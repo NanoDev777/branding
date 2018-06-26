@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class Quotation extends Model
 {
     protected $fillable = [
-        'cite', 'customer', 'contact', 'phone', 'address', 'term', 'state',
+        'cite', 'customer', 'contact', 'phone', 'address', 'term', 'state', 'user_id',
     ];
 
     protected $dates = ['created_at', 'updated_at'];
@@ -16,6 +16,11 @@ class Quotation extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class)->withPivot('quantity', 'total');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function saveQuotation($request)
@@ -27,6 +32,7 @@ class Quotation extends Model
             'phone'    => $request['phone'],
             'address'  => $request['address'],
             'term'     => $request['term'],
+            'user_id'  => $request['user_id'],
         ];
         DB::beginTransaction();
         try {

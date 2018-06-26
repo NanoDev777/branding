@@ -28,6 +28,7 @@ Route::group(['middleware' => ['auth:api', 'acl:api']], function () {
     //reports queries
     Route::get('max-products', 'ProductController@maxProducts');
     Route::get('total-products', 'ProductController@totalProductsQuotations');
+    Route::get('quotations-state', 'ProductController@state');
 
     //Images
     Route::post('create-image', 'ImageController@store')->name('products.create');

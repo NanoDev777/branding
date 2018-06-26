@@ -19,7 +19,7 @@ class ProductController extends Controller
         }
 
         $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
-            ->select('products.id', 'products.code', 'products.name', 'categories.name as category')
+            ->select('products.id', 'products.code', 'products.name', 'categories.name as category', 'products.created_at')
             ->orderBy('id', ' DESC');
 
         if ($request->has('filter')) {
@@ -213,6 +213,18 @@ class ProductController extends Controller
         $products   = Product::count();
         $quotations = Quotation::count();
         $data       = ['products' => $products, 'quotations' => $quotations];
+        return response()->json([
+            'success' => true,
+            'data'    => $data,
+        ], 200);
+    }
+
+    public function state()
+    {
+        $approved = Quotation::where('state', '=', 1)->count();
+        $slopes   = Quotation::where('state', '=', 0)->count();
+        $canceled = Quotation::where('state', '=', 2)->count();
+        $data     = ['approved' => $approved, 'slopes' => $slopes, 'canceled' => $canceled];
         return response()->json([
             'success' => true,
             'data'    => $data,

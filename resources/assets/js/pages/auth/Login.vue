@@ -43,10 +43,6 @@
                 </v-btn>
               </v-form>
             </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <router-link to="home">Olvidaste tu contraseña?</router-link>
-            </v-card-actions>
           </v-card>
         </v-flex>
       </v-layout>
