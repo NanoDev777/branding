@@ -133,7 +133,7 @@ class ReportesController extends Controller
             $amounts = $this->getAmount($value['id'], $value['quantity']);
             //aqui verifivar cantidades y agregar al array de errores
             if ($value['quantity'] < $amounts['min']) {
-                //si es menor pero tiene el checnox true que pase, sino agregar al array de errors
+                //si es menor pero tiene el checkbox true que pase, sino agregar al array de errors
                 if ($value['state'] == 1 && $value['price'] > 0) {
                     $unitary = round($value['price'], 2);
                 } else {
@@ -145,7 +145,8 @@ class ReportesController extends Controller
 
             $cost = Cost::all()->first();
 
-            $cbn = round($amounts['amounts']->price / $cost['chilean'], 2);
+            //TODO: modificar precios y montos para el precio estatico por producto, sumando valores de acuerdo a su valor.
+            $cbn = $unitary > 0 ? $unitary : round($amounts['amounts']->price / $cost['chilean'], 2);
 
             $transfer  = round($cbn * $cost['transfer'], 2);
             $import    = round($cbn * $cost['amount'], 2);
@@ -155,7 +156,7 @@ class ReportesController extends Controller
             $utility = round($product * $prices['utility'], 2);
             $sf      = round($product + $utility, 2);
             $iva     = round($sf * $cost['iva'], 2);
-            $total   = $unitary > 0 ? $unitary : round($sf + $iva, 2);
+            $total   = round($sf + $iva, 2);
 
             $name = Product::join('images', 'images.product_id', '=', 'products.id')
                 ->where('products.id', $value['id'])

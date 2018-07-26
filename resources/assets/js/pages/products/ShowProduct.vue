@@ -56,11 +56,11 @@
                             <div>{{ product.description }}</div>
                             <br>
                             <div><span class="grey--text">Especificaciones Artículo</span></div>
-                            <div><span>{{ product.height }} / {{ product.width }} / {{ product.thickness }} cm | {{ product.weight }} gr.</span></div>
+                            <div><span>{{ product.width }} / {{ product.height }} / {{ product.thickness }} cm | {{ product.weight }} gr.</span></div>
                             <br>
                             <div><span class="grey--text">Especificaciones Embalaje</span></div>
                             <div>
-                              <span>{{ packing.height }} / {{ packing.width }} / {{ packing.thickness }} cm | {{ packing.weight }} kg.</span>
+                              <span>{{ packing.width }} / {{ packing.height }} / {{ packing.thickness }} cm | {{ packing.weight }} kg.</span>
                               <v-icon title="Medidas">archive</v-icon><span>{{ packing.box }}</span>
                             </div>
                             <br>

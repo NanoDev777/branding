@@ -12,15 +12,17 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $rowsPerPage = 10;
+        $rowsPerPage = 12;
 
         if ($request->has('rowsPerPage')) {
             $rowsPerPage = $request->input('rowsPerPage');
         }
 
         $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
-            ->select('products.id', 'products.code', 'products.name', 'categories.name as category', 'products.created_at')
-            ->orderBy('id', ' DESC');
+            ->join('images', 'images.product_id', '=', 'products.id')
+            ->select('products.id', 'images.image', 'products.code', 'products.name', 'categories.name as category', 'products.created_at')
+            ->groupBy('products.id')
+            ->orderBy('products.id', ' DESC');
 
         if ($request->has('filter')) {
             $filter = $request->input('filter');
