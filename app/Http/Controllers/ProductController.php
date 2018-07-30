@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Cost;
+use App\Price;
 use App\Product;
 use App\Quotation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,8 +21,9 @@ class ProductController extends Controller
         }
 
         $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
-            ->join('images', 'images.product_id', '=', 'products.id')
-            ->select('products.id', 'images.image', 'products.code', 'products.name', 'categories.name as category', 'products.created_at')
+            ->leftjoin('images', 'images.product_id', '=', 'products.id')
+            ->leftjoin('amounts', 'amounts.product_id', '=', 'products.id')
+            ->select('products.id', DB::raw("COALESCE(images.image,'default.jpg') as image"), 'products.code', 'products.name', 'categories.name as category', 'products.created_at', DB::raw("MIN(amounts.quantity) as quantity"), DB::raw("MAX(amounts.price) as price"))
             ->groupBy('products.id')
             ->orderBy('products.id', ' DESC');
 
@@ -36,8 +39,13 @@ class ProductController extends Controller
 
         $products = $products->paginate($rowsPerPage);
 
+        $prices = Price::orderBy('id', 'ASC')->get();
+        $costs  = Cost::all()->first();
+
         $response = [
             'products' => $products,
+            'prices'   => $prices,
+            'costs'    => $costs,
             'params'   => [
                 'total'        => $products->total(),
                 'current_page' => $products->currentPage(),
@@ -176,7 +184,7 @@ class ProductController extends Controller
     public function searchProduct($code)
     {
         $product = Product::leftJoin('images', 'products.id', '=', 'images.product_id')
-            ->select('products.id', 'products.code', 'products.name', 'images.image as avatar')
+            ->select('products.id', 'products.code', 'products.name', 'images.image')
             ->where('code', 'like', '%' . $code . '%')
             ->get();
         return response()->json(['data' => $product], 200);

@@ -132,13 +132,20 @@ class ReportesController extends Controller
             $prices  = $this->getPrices($value['quantity']);
             $amounts = $this->getAmount($value['id'], $value['quantity']);
             //aqui verifivar cantidades y agregar al array de errores
-            if ($value['quantity'] < $amounts['min']) {
-                //si es menor pero tiene el checkbox true que pase, sino agregar al array de errors
-                if ($value['state'] == 1 && $value['price'] > 0) {
-                    $unitary = round($value['price'], 2);
-                } else {
-                    $errors[] = ['code' => $value['code'], 'name' => $value['name'], 'min' => $amounts['min']];
-                }
+            /*if ($value['quantity'] < $amounts['min']) {
+            //si es menor pero tiene el checkbox true que pase, sino agregar al array de errors
+            if ($value['state'] == 1 && $value['price'] > 0) {
+            $unitary = round($value['price'], 2);
+            } else {
+            $errors[] = ['code' => $value['code'], 'name' => $value['name'], 'min' => $amounts['min']];
+            }
+            }*/
+
+            $unitary = 0;
+            if ($value['state'] && $value['price'] > 0) {
+                $unitary = round($value['price'], 2);
+            } else if ($value['quantity'] < $amounts['min']) {
+                $errors[] = ['code' => $value['code'], 'name' => $value['name'], 'min' => $amounts['min']];
             }
 
             $value['extra'] > 0 ? $extra = $value['extra'] : $extra = 0;
@@ -146,17 +153,23 @@ class ReportesController extends Controller
             $cost = Cost::all()->first();
 
             //TODO: modificar precios y montos para el precio estatico por producto, sumando valores de acuerdo a su valor.
-            $cbn = $unitary > 0 ? $unitary : round($amounts['amounts']->price / $cost['chilean'], 2);
 
-            $transfer  = round($cbn * $cost['transfer'], 2);
-            $import    = round($cbn * $cost['amount'], 2);
-            $transport = round($cbn * $cost['transport'], 2);
+            $total = 0;
+            if ($unitary > 0) {
+                $total = $unitary;
+            } else {
+                $cbn = round($amounts['amounts']->price / $cost['chilean'], 2);
 
-            $product = round($cbn + $transfer + $import + $transport + $prices['logo'], 2);
-            $utility = round($product * $prices['utility'], 2);
-            $sf      = round($product + $utility, 2);
-            $iva     = round($sf * $cost['iva'], 2);
-            $total   = round($sf + $iva, 2);
+                $transfer  = round($cbn * $cost['transfer'], 2);
+                $import    = round($cbn * $cost['amount'], 2);
+                $transport = round($cbn * $cost['transport'], 2);
+
+                $product = round($cbn + $transfer + $import + $transport + $prices['logo'], 2);
+                $utility = round($product * $prices['utility'], 2);
+                $sf      = round($product + $utility, 2);
+                $iva     = round($sf * $cost['iva'], 2);
+                $total   = round($sf + $iva, 2);
+            }
 
             $name = Product::join('images', 'images.product_id', '=', 'products.id')
                 ->where('products.id', $value['id'])
@@ -269,8 +282,9 @@ class ReportesController extends Controller
             $file = 'Cotizacion.pdf';
             PDF::Output(public_path($file), 'F');
             return response()->json([
-                'success' => true,
-                'data'    => $file,
+                'success'  => true,
+                'data'     => $file,
+                'products' => $productsData,
             ]);
         } else {
             return response()->json(['message' => message('MSG010')], 500);

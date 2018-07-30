@@ -16,7 +16,7 @@ class Amount extends Model
     ];
 
     protected $hidden = [
-        'product_id', 'deleted_at',
+        'deleted_at',
     ];
 
     public function product()

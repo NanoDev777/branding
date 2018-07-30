@@ -4,6 +4,7 @@
       <v-flex d-flex xs12 sm12 md12>
         <v-card>
           <modal-delete :loader="loader" :dialog="dialog" @hide="hide" @deleted="deleted"></modal-delete>
+          <cart :dialog="dialogc" @hide="hideCart"></cart>
           <v-card-title>
             <h3 class="headline mb-0">Lista de productos</h3>
           </v-card-title>
@@ -12,6 +13,18 @@
               <v-flex d-flex xs12 sm12 md12 lg12>
                 <v-card>
                   <v-card-title>
+                    <v-btn
+                      absolute
+                      dark 
+                      color="grey darken-1" 
+                      fab
+                      small
+                      top
+                      right
+                      @click="dialogc = true"
+                    >
+                      <strong>{{ total }}</strong>
+                    </v-btn>
                     <v-container fluid grid-list-md>
                       <v-layout row wrap>
                         <v-flex d-flex xs12 sm12 md3 lg3>
@@ -132,7 +145,9 @@
                       lg3
                     >
                       <v-card>
-                        <v-card-title><h5>{{ props.item.name }}</h5></v-card-title>
+                        <v-card-title>
+                          <h5>{{ props.item.name }}</h5>
+                        </v-card-title>
                         <v-divider></v-divider>
                         <div id="container">
                           <img class="image" :src="'/img/products/'+props.item.image" alt="Image did not load..."/>
@@ -158,11 +173,19 @@
                           <v-list-tile>
                             <v-list-tile-content>
                               <v-list-tile-title>Precio (c/mínima)</v-list-tile-title>
-                              <v-list-tile-sub-title>{{ props.item.category }}</v-list-tile-sub-title>
+                              <v-list-tile-sub-title> {{ props.item.quantity != null ? getData(props.item.price, props.item.quantity) : `S/P`}}</v-list-tile-sub-title>
                             </v-list-tile-content>
                           </v-list-tile>
                         </v-list>
                         <v-card-actions>
+                          <v-btn 
+                            flat 
+                            icon 
+                            dark color="grey darken-1" 
+                            @click="addCart(props.item)"
+                          >
+                            <v-icon>add_shopping_cart</v-icon>
+                          </v-btn>
                           <v-spacer></v-spacer>
                           <v-btn 
                             v-if="permission('products.show')" 
@@ -205,7 +228,9 @@
 <script>
   import permission from '../../mixins/permission'
   import ModalDelete from '../../components/ModalDelete.vue'
+  import Cart from '../../components/Cart.vue'
   import CategoryService from '../../class/category/CategoryService'
+  import { mapGetters } from 'vuex'
 
   export default {
     name: 'list-products',
@@ -216,9 +241,12 @@
         toggle_one: 0,
         search: '',
         dialog: false,
+        dialogc: false,
         loader: false,
         loading: false,
         items: [],
+        prices: [],
+        costs: {},
         headers: [
           {
             text: '',
@@ -239,8 +267,16 @@
       }
     },
 
+    computed: {
+      ...mapGetters([
+        'products',
+        'total'
+      ])
+    },
+
     components: {
-      'modal-delete' : ModalDelete
+      'modal-delete' : ModalDelete,
+      'cart' : Cart
     },
 
     mixins: [permission],
@@ -251,6 +287,8 @@
           this.getDataFromApi()
           .then(data => {
             this.items = data.items
+            this.prices = data.prices
+            this.costs = data.costs
           })
         },
         deep: true
@@ -266,6 +304,22 @@
     },
 
     methods: {
+      addCart(product) {
+        this.$store.dispatch('addProduct', product)
+        .then(() => {
+          this.$snotify.simple('Agregado Corréctamente', 'Felicidades', {
+            timeout: 2000,
+            showProgressBar: true,
+            closeOnClick: false,
+            pauseOnHover: true
+          })
+        })
+      },
+
+      hideCart() {
+        this.dialogc = false
+      },
+
       showModal(id) {
         this.dialog = true
         this.id = id
@@ -284,6 +338,8 @@
           this.$snotify.simple(response.data.message, 'Felicidades')
           this.getDataFromApi().then(data =>{
             this.items = data.items
+            this.prices = data.prices
+            this.costs = data.costs
           })
         })
         .catch((error) => {
@@ -297,13 +353,37 @@
         this.category = a
         this.getDataFromApi().then(data =>{
           this.items = data.items
+          this.prices = data.prices
+          this.costs = data.costs
         })
       },
 
       filterData() {
         this.getDataFromApi().then(data =>{
           this.items = data.items
+          this.prices = data.prices
+          this.costs = data.costs
         })
+      },
+
+      getPrices(quantity) {
+        let val = this.prices.filter((e) => e.quantity <= quantity ).reduce((a, b) => a.quantity > b.quantity ? a : b)
+        return val
+      },
+
+      getData(p, q) {
+        let prices = this.getPrices(q)
+        let cbn = parseFloat(p / this.costs.chilean).toFixed(2)
+        let transfer  = parseFloat(cbn * this.costs.transfer).toFixed(2)
+        let imports    = parseFloat(cbn * this.costs.amount).toFixed(2)
+        let transport = parseFloat(cbn * this.costs.transport).toFixed(2)
+
+        let product = parseFloat(cbn) + parseFloat(transfer) + parseFloat(imports) + parseFloat(transport) + parseFloat(prices.logo)
+        let utility = parseFloat(product) * parseFloat(prices.utility)
+        let sf      = parseFloat(product) + parseFloat(utility)
+        let iva     = parseFloat(sf) * parseFloat(this.costs.iva)
+        let total   = parseFloat(sf) + parseFloat(iva)
+        return `${q} (U) / ${total.toFixed(2)} Bs.`
       },
 
       getDataFromApi() {
@@ -314,8 +394,12 @@
           .then((response) => {
             this.totalItems = response.data.params.total
             let items = response.data.products.data
+            let costs = response.data.costs
+            let prices = response.data.prices
             resolve({
-              items
+              items,
+              costs,
+              prices
             })
             this.loading = false
           })

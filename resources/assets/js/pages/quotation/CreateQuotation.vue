@@ -28,7 +28,7 @@
                       :key="JSON.stringify(data.item)"
                     >
                     <v-avatar>
-                      <img :src="`/img/products/${data.item.avatar}`">
+                      <img :src="`/img/products/${data.item.image}`">
                     </v-avatar>
                     {{ data.item.code }}
                     </v-chip>
@@ -39,7 +39,7 @@
                     </template>
                     <template v-else>
                       <v-list-tile-avatar>
-                        <img :src="`/img/products/${data.item.avatar}`">
+                        <img :src="`/img/products/${data.item.image}`">
                       </v-list-tile-avatar>
                       <v-list-tile-content>
                         <v-list-tile-title v-html="data.item.code"></v-list-tile-title>
@@ -367,13 +367,23 @@
 
     computed: {
       ...mapGetters([
-        'currentUser'
+        'currentUser',
+        'products'
       ])
     },
 
     watch: {
       search (val) {
         val && this.querySelections(val)
+      }
+    },
+
+    created() {
+      if (this.products.length > 0) {
+        let data = this.products.map(({id, code, name, image}) => ({id, code, name, image}))
+        let select = this.products.map(({id}) => (id))
+        this.items = data
+        this.select = select
       }
     },
 
@@ -437,6 +447,7 @@
             axios.post('/api/reporte', jsonString)
             .then((response) => {
               if (response.data.success) {
+                this.$store.dispatch('emptyProducts')
                 let url = `/${response.data.data}`
                 window.open(
                   url,

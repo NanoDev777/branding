@@ -9,8 +9,13 @@ class Price extends Model
 {
     use SoftDeletes;
 
-    protected $dates    = ['deleted_at'];
+    protected $dates = ['deleted_at'];
+
     protected $fillable = [
         'quantity', 'logo', 'utility',
+    ];
+
+    protected $hidden = [
+        'deleted_at',
     ];
 }

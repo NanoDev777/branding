@@ -11,7 +11,7 @@
                 v-model="form.quantity"
                 @focus ="$event.target.select()"
                 data-vv-name="quantity"
-                v-validate="'required|numeric|max:16'"
+                v-validate="'required|numeric|max:16|min_value:10'"
                 :error-messages="errors.collect('quantity')"
               ></v-text-field>
             </v-flex>
@@ -68,7 +68,7 @@
                   ></v-text-field>
                 </v-edit-dialog>
               </td>
-              <td class="text-xs-left">{{ (props.item.price / props.item.cbn).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}}</td>
+              <td class="text-xs-left">{{ getData(props.item.price, props.item.quantity) }}</td>
               <td class="text-xs-left">{{ props.item.created_at | formatDate('DD/MM/YYYY') }}</td>
               <td class="text-xs-left">{{ props.item.updated_at | formatDate('DD/MM/YYYY') }}</td>
               <td>
@@ -118,6 +118,8 @@
         },
         loading: false,
         amounts:[],
+        prices: [],
+        costs: {},
         headers: [
           {
             text: 'Cantidad',
@@ -136,7 +138,8 @@
             quantity: {
               required: () => 'Este campo es requerido',
               numeric: 'Este campo solo puede contener números enteros',
-              max: 'Este campo debe tener un máximo de 16 caracteres'
+              max: 'Este campo debe tener un máximo de 16 caracteres',
+              min_value: 'La cantidad mínima es de 10'
             },
             price: {
               required: () => 'Este campo es requerido',
@@ -157,14 +160,35 @@
     },
 
     methods: {
+      getPrices(quantity) {
+        let val = this.prices.filter((e) => e.quantity <= quantity ).reduce((a, b) => a.quantity > b.quantity ? a : b)
+        return val
+      },
+
+      getData(p, q) {
+        let prices = this.getPrices(q)
+        let cbn = parseFloat(p / this.costs.chilean).toFixed(2)
+        let transfer  = parseFloat(cbn * this.costs.transfer).toFixed(2)
+        let imports    = parseFloat(cbn * this.costs.amount).toFixed(2)
+        let transport = parseFloat(cbn * this.costs.transport).toFixed(2)
+
+        let product = parseFloat(cbn) + parseFloat(transfer) + parseFloat(imports) + parseFloat(transport) + parseFloat(prices.logo)
+        let utility = parseFloat(product) * parseFloat(prices.utility)
+        let sf      = parseFloat(product) + parseFloat(utility)
+        let iva     = parseFloat(sf) * parseFloat(this.costs.iva)
+        let total   = parseFloat(sf) + parseFloat(iva)
+        return total.toFixed(2)
+      },
+      
       get() {
         axios.get('/api/amounts/' + this.product)
         .then(response => {
+          this.costs = response.data.costs
+          this.prices = response.data.prices
           let amounts = response.data.data.map((obj) => { 
             let rObj = obj
             rObj['update'] = false
             rObj['delete'] = false
-            rObj['cbn'] = response.data.cbn
             return rObj
           })
           this.amounts = amounts
@@ -181,7 +205,6 @@
                 let amount = response.data.data
                 amount["update"] = false
                 amount["delete"] = false
-                amount["cbn"] = response.data.cbn
                 this.amounts.unshift(amount)
                 this.$snotify.simple(response.data.message, 'Felicidades')
               }
