@@ -87,6 +87,7 @@
               this.message = response.data.message
               this.alert = true
             } else {
+              console.log(response.data)
               this.$store.dispatch('saveToken', response.data.access_token)
               this.$store.dispatch('saveExpiration', response.data.expires_in + Date.now())
               this.$store.dispatch('getDataUser')

@@ -109,6 +109,7 @@
                             ></v-select>
                           </v-flex>
                           <v-flex xs12>
+                            <b>{{ select }}</b>
                             <v-select
                               label="Colores *"
                               :items="colors"

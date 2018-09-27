@@ -8,7 +8,6 @@
         <link rel="shortcut icon" href="{{{ asset('img/branding2.png') }}}">
         <title>Branding</title>
         {!! Html::style('css/app.css') !!}
-        <link href="https://transloadit.edgly.net/releases/uppy/v0.25.2/dist/uppy.min.css" rel="stylesheet">
     </head>
     <body>
       <div id="app"></div>
