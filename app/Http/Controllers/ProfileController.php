@@ -62,14 +62,10 @@ class ProfileController extends Controller
     public function show($id)
     {
         $profile = Profile::with('actions')->find($id);
-        if (count($profile) > 0) {
             return response()->json([
                 'success' => true,
                 'profile' => $profile,
             ]);
-        }
-
-        return response()->json(['message' => message('MSG011')], 404);
     }
 
     public function update(Request $request, $id)
